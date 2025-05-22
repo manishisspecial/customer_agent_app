@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Paperclip, Smile, Send, Info, X, User, CheckCircle } from "lucide-react";
+import { Paperclip, Smile, Send, Info, X, User, CheckCircle, ArrowLeft } from "lucide-react";
 
 const initialMessages = [
   {
@@ -24,10 +24,13 @@ const initialMessages = [
   },
 ];
 
-const ChatWindow = ({ showDetailsButton, onShowDetails }) => {
+const ChatWindow = ({ showDetailsButton, onShowDetails, onBack }) => {
   const [messages, setMessages] = useState(initialMessages);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef(null);
+
+  // Responsive detection
+  const isTabletOrMobile = window.innerWidth < 1280;
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -50,11 +53,16 @@ const ChatWindow = ({ showDetailsButton, onShowDetails }) => {
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-[#f7fafc] h-full overflow-y-auto">
+    <div className="flex-1 flex flex-col bg-[#f7fafc] h-full overflow-y-auto animate-fade-in">
       {/* Chat header */}
-      <div className="px-4 py-4 border-b border-gray-200 flex items-center justify-between bg-white relative">
+      <div className="px-4 py-4 border-b border-gray-200 flex items-center justify-between bg-white relative shadow-sm">
         <div className="flex items-center gap-3">
-          <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Tom Simone" className="h-9 w-9 rounded-full object-cover" />
+          {isTabletOrMobile && onBack && (
+            <button className="mr-2 p-2 rounded-full bg-gray-100 hover:bg-gray-200 shadow transition" onClick={onBack} aria-label="Back">
+              <ArrowLeft size={22} />
+            </button>
+          )}
+          <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Tom Simone" className="h-9 w-9 rounded-full object-cover shadow" />
           <div>
             <div className="font-semibold text-gray-800 text-base flex items-center gap-1">Tom Simone <CheckCircle className="text-green-500" size={18} /></div>
             <div className="text-xs text-gray-500">1m ago</div>
@@ -93,13 +101,13 @@ const ChatWindow = ({ showDetailsButton, onShowDetails }) => {
             <div key={idx} className={`flex ${msg.type === "user" ? "justify-start" : "justify-end"}`}> 
               <div className={`flex flex-col gap-1 max-w-md ${msg.type === "user" ? "items-start" : "items-end"}`}>
                 <div className="flex items-center gap-2">
-                  <img src={msg.avatar} alt={msg.name} className="w-8 h-8 rounded-full object-cover" />
+                  <img src={msg.avatar} alt={msg.name} className="w-8 h-8 rounded-full object-cover shadow" />
                   <span className="text-xs text-gray-500">{msg.name}</span>
                 </div>
                 {msg.image && (
-                  <img src={msg.image} alt="attachment" className="w-40 h-32 object-cover rounded-lg border" />
+                  <img src={msg.image} alt="attachment" className="w-40 h-32 object-cover rounded-lg border shadow" />
                 )}
-                <div className={`px-5 py-3 rounded-2xl shadow ${msg.type === "user" ? "bg-blue-100 text-blue-900" : "bg-gray-100 text-gray-800 border"} animate-scale-in`}>{msg.content}</div>
+                <div className={`px-5 py-3 rounded-2xl shadow-lg ${msg.type === "user" ? "bg-blue-100 text-blue-900" : "bg-gray-100 text-gray-800 border"} animate-scale-in`}>{msg.content}</div>
                 <span className="text-xs text-gray-400">{msg.time}</span>
               </div>
             </div>
@@ -114,13 +122,13 @@ const ChatWindow = ({ showDetailsButton, onShowDetails }) => {
         <input
           type="text"
           placeholder="Message..."
-          className="flex-1 px-4 py-2 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-200 text-base"
+          className="flex-1 px-4 py-2 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-200 text-base bg-white/80"
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleSend()}
         />
         <button
-          className="bg-blue-600 text-white px-5 py-2 rounded-2xl font-semibold hover:bg-blue-700 transition text-base flex items-center gap-1 animate-scale-in"
+          className="bg-blue-600 text-white px-5 py-2 rounded-2xl font-semibold hover:bg-blue-700 transition text-base flex items-center gap-1 animate-scale-in shadow"
           onClick={handleSend}
         >
           <Send size={20} /> Send

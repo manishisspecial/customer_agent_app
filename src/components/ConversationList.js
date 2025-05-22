@@ -15,9 +15,9 @@ const conversations = [
   { name: "Shelley Mraz", message: "Hi there, I have a question...", time: "15m", avatar: "https://randomuser.me/api/portraits/women/42.jpg" },
 ];
 
-const ConversationList = () => {
+const ConversationList = ({ onSelect }) => {
   return (
-    <div className="w-full md:w-72 min-w-[220px] max-w-[320px] bg-white border-r border-gray-200 flex flex-col h-full overflow-y-auto">
+    <div className="w-full md:w-72 min-w-[220px] max-w-[320px] bg-white border-r border-gray-200 flex flex-col h-full overflow-y-auto animate-fade-in">
       <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
         <span className="font-semibold text-gray-800 text-base">Mentions</span>
         <span className="text-xs text-gray-500">12 Open</span>
@@ -26,10 +26,12 @@ const ConversationList = () => {
         {conversations.map((conv, idx) => (
           <li
             key={idx}
-            className={`flex items-center gap-3 px-4 py-3 border-b border-gray-100 cursor-pointer transition-colors group ${conv.active ? "bg-blue-50" : "hover:bg-gray-50"}`}
+            className={`flex items-center gap-3 px-4 py-3 border-b border-gray-100 cursor-pointer transition-colors group relative overflow-hidden ${conv.active ? "bg-blue-50" : "hover:bg-gray-50"}`}
+            onClick={onSelect}
           >
+            <span className="absolute inset-0 bg-blue-100 opacity-0 group-active:opacity-30 transition-opacity duration-200 pointer-events-none" />
             <div className="relative">
-              <img src={conv.avatar} alt={conv.name} className="w-9 h-9 rounded-full object-cover border border-gray-200" />
+              <img src={conv.avatar} alt={conv.name} className="w-9 h-9 rounded-full object-cover border border-gray-200 shadow" />
               {conv.active && <span className="absolute bottom-0 right-0 bg-blue-500 rounded-full w-3 h-3 border-2 border-white" />}
             </div>
             <div className="flex-1 min-w-0">

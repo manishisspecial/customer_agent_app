@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { ChevronDown, Menu } from "lucide-react";
 
-const Header = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [productOpen, setProductOpen] = useState(false);
-  const [resourcesOpen, setResourcesOpen] = useState(false);
+const Header = ({ menuOpen, setMenuOpen }) => {
+  const [productOpen, setProductOpen] = React.useState(false);
+  const [resourcesOpen, setResourcesOpen] = React.useState(false);
   return (
     <header className="fixed top-0 left-0 w-full flex items-center justify-between px-4 lg:px-12 py-3 bg-white/80 backdrop-blur border-b border-gray-200 z-30 shadow-sm">
       {/* Left: Logo + Nav */}

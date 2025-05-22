@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Info, Copy, MoreHorizontal, CheckCircle } from "lucide-react";
+import { Info, Copy, MoreHorizontal, CheckCircle, ArrowLeft } from "lucide-react";
 
 const copilotContent = (
   <div className="space-y-3 animate-fade-in">
@@ -66,7 +66,7 @@ const detailsContent = (
   </div>
 );
 
-const DetailsPanel = ({ mobileDrawer }) => {
+const DetailsPanel = ({ mobileDrawer, onClose }) => {
   const [tab, setTab] = useState("copilot");
   const [composerFeedback, setComposerFeedback] = useState(false);
 
@@ -76,23 +76,33 @@ const DetailsPanel = ({ mobileDrawer }) => {
   };
 
   return (
-    <div className={`w-full h-full flex flex-col overflow-y-auto bg-white ${mobileDrawer ? 'max-w-md mx-auto shadow-xl rounded-t-2xl' : ''}`}>
-      <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-4">
-        <button
-          className={`font-semibold text-gray-800 px-2 py-1 rounded transition ${tab === "details" ? "bg-gray-100" : ""}`}
-          onClick={() => setTab("details")}
-        >
-          Details
-        </button>
-        <button
-          className={`font-semibold text-gray-800 px-2 py-1 rounded transition ${tab === "copilot" ? "bg-gray-100" : ""}`}
-          onClick={() => setTab("copilot")}
-        >
-          Copilot
-        </button>
-        <span className="flex-1" />
-        <button className="p-1 rounded hover:bg-gray-100 transition"><MoreHorizontal size={20} /></button>
-      </div>
+    <div className={`w-full h-full flex flex-col overflow-y-auto bg-white ${mobileDrawer ? 'max-w-md mx-auto shadow-xl rounded-t-2xl animate-slide-up' : ''}`}>
+      {mobileDrawer && (
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-100 bg-blue-50/60 rounded-t-2xl shadow-sm">
+          <button className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 shadow transition" onClick={onClose} aria-label="Back">
+            <ArrowLeft size={22} />
+          </button>
+          <span className="font-semibold text-blue-800 text-lg">Details</span>
+        </div>
+      )}
+      {!mobileDrawer && (
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-4">
+          <button
+            className={`font-semibold text-gray-800 px-2 py-1 rounded transition ${tab === "details" ? "bg-gray-100" : ""}`}
+            onClick={() => setTab("details")}
+          >
+            Details
+          </button>
+          <button
+            className={`font-semibold text-gray-800 px-2 py-1 rounded transition ${tab === "copilot" ? "bg-gray-100" : ""}`}
+            onClick={() => setTab("copilot")}
+          >
+            Copilot
+          </button>
+          <span className="flex-1" />
+          <button className="p-1 rounded hover:bg-gray-100 transition"><MoreHorizontal size={20} /></button>
+        </div>
+      )}
       <div className="px-6 py-4 flex-1 overflow-y-auto">
         {tab === "copilot" ? (
           <div>

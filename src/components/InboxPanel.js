@@ -3,7 +3,7 @@ import { Inbox, AtSign, PlusCircle, Users, Eye, Bot, ChevronDown } from "lucide-
 
 const InboxPanel = () => {
   return (
-    <div className="hidden md:flex w-64 min-w-60 bg-white border-r border-gray-200 flex-col h-full overflow-y-auto">
+    <div className="hidden md:flex w-64 min-w-60 bg-white border-r border-gray-200 flex-col h-full overflow-y-auto animate-fade-in shadow-sm rounded-r-2xl">
       <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-gray-800">Inbox</h2>
         <button className="p-1 rounded hover:bg-gray-100 transition"><PlusCircle size={20} /></button>

@@ -3,7 +3,7 @@ import { Home, Inbox, Users, Settings } from "lucide-react";
 
 const Sidebar = () => {
   return (
-    <aside className="hidden md:flex w-16 min-w-16 bg-white border-r border-gray-200 flex-col items-center py-4 h-full">
+    <aside className="hidden md:flex w-16 min-w-16 bg-white border-r border-gray-200 flex-col items-center py-4 h-full animate-fade-in shadow-sm rounded-r-2xl">
       {/* Logo */}
       <img src="/logo192.png" alt="BeyondChats Logo" className="h-8 w-8 mb-8" />
       {/* Sidebar nav icons */}

@@ -47,7 +47,7 @@ const columns = [
 ];
 
 const Footer = () => (
-  <footer className="w-full flex justify-center items-end py-4 px-2 bg-transparent animate-fade-in">
+  <footer className="w-full flex justify-center items-end py-4 px-2 bg-transparent animate-fade-in-up">
     <div className="w-full max-w-screen-xl rounded-xl backdrop-blur-md bg-white/80 md:bg-white/60 shadow-lg p-4 md:p-8 flex flex-col gap-6 border border-white/30">
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-6 w-full max-w-full">
         {columns.slice(0, 6).map((col, i) => (
