@@ -1,75 +1,88 @@
-import React from "react";
-import { ChevronDown, Menu } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Search, Bell, Settings, MoreHorizontal } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-const Header = ({ menuOpen, setMenuOpen }) => {
-  const [productOpen, setProductOpen] = React.useState(false);
-  const [resourcesOpen, setResourcesOpen] = React.useState(false);
+const Header = () => {
+  const [showAccountMenu, setShowAccountMenu] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('sessionStart');
+    navigate('/');
+  };
+
   return (
-    <header className="fixed top-0 left-0 w-full flex items-center justify-between px-4 lg:px-12 py-3 bg-white/80 backdrop-blur border-b border-gray-200 z-30 shadow-sm">
-      {/* Left: Logo + Nav */}
-      <div className="flex items-center gap-2 lg:gap-8">
-        <button className="flex items-center gap-1 group">
-          <img src="/logo192.png" alt="Logo" className="h-8 w-8" />
-          <ChevronDown className="text-gray-500 group-hover:text-black" size={18} />
-        </button>
-        {/* Desktop nav */}
-        <nav className="hidden lg:flex gap-6 text-gray-800 font-medium">
-          <a href="#" className="hover:text-blue-600">Home</a>
+    <header className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 z-50">
+      <div className="h-full flex items-center justify-between px-4">
+        <span className="text-xl font-semibold text-gray-900">BeyondChats</span>
+
+        <div className="flex-1 max-w-3xl mx-8">
           <div className="relative">
-            <button onClick={()=>setProductOpen(v=>!v)} className="flex items-center gap-1 hover:text-blue-600">Product <ChevronDown size={16} className="mt-0.5" /></button>
-            {productOpen && (
-              <div className="absolute left-0 top-full mt-2 bg-white border rounded shadow-lg min-w-[180px] p-2 z-40">
-                <a href="#" className="block px-3 py-2 hover:bg-gray-100 rounded">Helpdesk</a>
-                <a href="#" className="block px-3 py-2 hover:bg-gray-100 rounded">Fin AI Agent</a>
-                <a href="#" className="block px-3 py-2 hover:bg-gray-100 rounded">Tickets</a>
-                <a href="#" className="block px-3 py-2 hover:bg-gray-100 rounded">Omnichannel</a>
-              </div>
-            )}
-          </div>
-          <a href="#" className="hover:text-blue-600">Customers</a>
-          <div className="relative">
-            <button onClick={()=>setResourcesOpen(v=>!v)} className="flex items-center gap-1 hover:text-blue-600">Resources <ChevronDown size={16} className="mt-0.5" /></button>
-            {resourcesOpen && (
-              <div className="absolute left-0 top-full mt-2 bg-white border rounded shadow-lg min-w-[180px] p-2 z-40">
-                <a href="#" className="block px-3 py-2 hover:bg-gray-100 rounded">Events</a>
-                <a href="#" className="block px-3 py-2 hover:bg-gray-100 rounded">Blog</a>
-                <a href="#" className="block px-3 py-2 hover:bg-gray-100 rounded">Academy</a>
-                <a href="#" className="block px-3 py-2 hover:bg-gray-100 rounded">Help Center</a>
-              </div>
-            )}
-          </div>
-          <a href="#" className="hover:text-blue-600">Pricing</a>
-        </nav>
-      </div>
-      {/* Right: Actions */}
-      <div className="hidden lg:flex items-center gap-2 xl:gap-6">
-        <a href="#" className="text-gray-700 hover:text-blue-600 font-medium">Contact sales</a>
-        <a href="#" className="text-gray-700 hover:text-blue-600 font-medium">Sign in</a>
-        <a href="#" className="text-gray-700 hover:text-blue-600 font-medium">View demo</a>
-        <button className="bg-black text-white px-5 py-2 rounded font-semibold hover:bg-gray-800 transition text-base shadow">Start free trial</button>
-      </div>
-      {/* Hamburger for mobile/tablet */}
-      <button className="lg:hidden flex items-center p-2" onClick={() => setMenuOpen(!menuOpen)}>
-        <Menu size={28} />
-      </button>
-      {/* Mobile menu */}
-      {menuOpen && (
-        <div className="absolute top-full left-0 w-full bg-white shadow-md flex flex-col gap-2 p-4 lg:hidden z-40 animate-fade-in">
-          <nav className="flex flex-col gap-2 text-gray-800 font-medium">
-            <a href="#" className="hover:text-blue-600">Home</a>
-            <a href="#" className="hover:text-blue-600">Product</a>
-            <a href="#" className="hover:text-blue-600">Customers</a>
-            <a href="#" className="hover:text-blue-600">Resources</a>
-            <a href="#" className="hover:text-blue-600">Pricing</a>
-          </nav>
-          <div className="flex flex-col gap-2 mt-2">
-            <a href="#" className="text-gray-700 hover:text-blue-600 text-left">Contact sales</a>
-            <a href="#" className="text-gray-700 hover:text-blue-600 text-left">Sign in</a>
-            <a href="#" className="text-gray-700 hover:text-blue-600 text-left">View demo</a>
-            <button className="bg-black text-white px-4 py-2 rounded font-semibold hover:bg-gray-800 transition">Start free trial</button>
+            <input
+              type="text"
+              placeholder="Search conversations, users, or teams..."
+              className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           </div>
         </div>
-      )}
+
+        <div className="flex items-center space-x-4">
+          <button className="text-gray-600 hover:text-gray-900">
+            <Bell className="h-5 w-5" />
+          </button>
+          <button className="text-gray-600 hover:text-gray-900">
+            <Settings className="h-5 w-5" />
+          </button>
+          <div className="relative">
+            <button 
+              className="flex items-center space-x-2"
+              onClick={() => setShowAccountMenu(!showAccountMenu)}
+            >
+              <span className="text-sm text-gray-700">Manish Kumar Shah</span>
+              <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm">
+                MK
+              </div>
+            </button>
+            
+            {showAccountMenu && (
+              <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5">
+                <div className="px-4 py-2 border-b border-gray-100">
+                  <p className="text-sm font-medium text-gray-900">Customer Service Agent</p>
+                  <p className="text-xs text-gray-500">manish.shah@beyondchats.com</p>
+                </div>
+                <button
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  onClick={() => {/* Handle View Profile */}}
+                >
+                  View Profile
+                </button>
+                <button
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  onClick={() => {/* Handle Edit Profile */}}
+                >
+                  Edit Profile
+                </button>
+                <button
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  onClick={() => {/* Handle Settings */}}
+                >
+                  Settings
+                </button>
+                <div className="border-t border-gray-100">
+                  <button
+                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </header>
   );
 };

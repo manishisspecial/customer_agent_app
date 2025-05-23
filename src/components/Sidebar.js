@@ -1,19 +1,69 @@
 import React from "react";
-import { Home, Inbox, Users, Settings } from "lucide-react";
+import {
+  Home,
+  Search,
+  Plus,
+  Mail,
+  Phone,
+  Clock,
+  Star,
+  Users,
+  MessageSquare,
+  BarChart2,
+  Settings,
+  HelpCircle,
+  User
+} from "lucide-react";
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen }) => {
+  const topIcons = [Home, Search, Plus];
+  const mainIcons = [Mail, Phone, Clock, Star, Users, MessageSquare, BarChart2, Settings, HelpCircle];
+
   return (
-    <aside className="hidden md:flex w-16 min-w-16 bg-white border-r border-gray-200 flex-col items-center py-4 h-full animate-fade-in shadow-sm rounded-r-2xl">
-      {/* Logo */}
-      <img src="/logo192.png" alt="BeyondChats Logo" className="h-8 w-8 mb-8" />
-      {/* Sidebar nav icons */}
-      <div className="flex flex-col gap-8 mt-4 text-gray-500">
-        <button className="hover:text-blue-600 transition-colors" title="Home"><Home size={24} /></button>
-        <button className="hover:text-blue-600 transition-colors" title="Inbox"><Inbox size={24} /></button>
-        <button className="hover:text-blue-600 transition-colors" title="Users"><Users size={24} /></button>
-        <button className="hover:text-blue-600 transition-colors" title="Settings"><Settings size={24} /></button>
+    <div className={`
+      fixed left-0 top-16 bottom-0 bg-white border-r border-gray-200
+      transition-all duration-300 z-40
+      w-[64px] [@media(min-width:1440px)]:w-[68px]
+    `}>
+      <div className="h-full flex flex-col">
+        {/* Top Icons */}
+        <div className="pt-4 flex flex-col items-center space-y-1">
+          {topIcons.map((Icon, index) => (
+            <button 
+              key={index}
+              className="w-10 h-10 flex items-center justify-center rounded-lg text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+            >
+              <Icon className="w-5 h-5 [@media(min-width:1440px)]:w-6 [@media(min-width:1440px)]:h-6" />
+            </button>
+          ))}
+        </div>
+
+        {/* Divider */}
+        <div className="mt-4 mb-4 w-8 h-[1px] bg-gray-200 mx-auto" />
+
+        {/* Spacer to push icons to bottom */}
+        <div className="flex-1" />
+
+        {/* Main Icons */}
+        <div className="flex flex-col items-center space-y-1 mb-4">
+          {mainIcons.map((Icon, index) => (
+            <button 
+              key={index}
+              className="w-10 h-10 flex items-center justify-center rounded-lg text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+            >
+              <Icon className="w-5 h-5 [@media(min-width:1440px)]:w-6 [@media(min-width:1440px)]:h-6" />
+            </button>
+          ))}
+        </div>
+
+        {/* User Profile Icon */}
+        <div className="pb-4 flex justify-center">
+          <button className="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all flex items-center justify-center text-white font-medium">
+            MK
+          </button>
+        </div>
       </div>
-    </aside>
+    </div>
   );
 };
 

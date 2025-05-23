@@ -1,138 +1,253 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Paperclip, Smile, Send, Info, X, User, CheckCircle, ArrowLeft } from "lucide-react";
+import { Star, Clock, Phone, Video, Settings, Plus, Smile, Send, Paperclip, Image, Bot, MoreHorizontal, 
+  Zap, FileText, Mail, MessageSquare, Flag, ThumbsUp, ThumbsDown, Reply, ChevronDown } from "lucide-react";
+import ChatMessage from './ChatMessage';
 
-const initialMessages = [
-  {
-    type: "user",
-    name: "Tom Simone",
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-    content: "I'd like a refund, the sweater I received has a torn sleeve.",
-    time: "1m",
-    image: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    type: "agent",
-    name: "Fin",
-    avatar: "/logo192.png",
-    content: "Sorry about that! I see your order #56789 is a merino sweater. This needs a team member's approval, so I'll transfer you now.",
-    time: "1m",
-  },
-  {
-    type: "summary",
-    content: "Refund request for order #56789 due to a torn sleeve. Order is fulfilled—needs approval.",
-    time: "1m",
-  },
-];
-
-const ChatWindow = ({ showDetailsButton, onShowDetails, onBack }) => {
-  const [messages, setMessages] = useState(initialMessages);
-  const [input, setInput] = useState("");
-  const messagesEndRef = useRef(null);
-
-  // Responsive detection
-  const isTabletOrMobile = window.innerWidth < 1280;
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  const handleSend = () => {
-    if (input.trim()) {
-      setMessages([
-        ...messages,
-        {
-          type: "agent",
-          name: "You",
-          avatar: "/logo192.png",
-          content: input,
-          time: "now",
-        },
-      ]);
-      setInput("");
+// Each conversation will be a separate array of messages
+const conversations = {
+  1: [ // Alexandra's conversation
+    {
+      id: 1,
+      text: "Hey there, can you help me find my order? I think it should have been delivered by now but I haven't received it.",
+      time: "2m",
+      isCustomer: true,
+      customerInfo: {
+        name: "Alexandra Anholt",
+        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330"
+      }
+    },
+    {
+      id: 2,
+      text: "",
+      time: "4m",
+      isCustomer: true,
+      customerInfo: {
+        name: "Alexandra Anholt",
+        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330"
+      },
+      attachment: {
+        image: "https://images.unsplash.com/photo-1602028915047-37269d1a73f7",
+        title: "Baies Scented Candle",
+        subtitle: "Order #10859"
+      }
+    },
+    {
+      id: 3,
+      text: "Hi Alexandra! No problem let me look into this for you.",
+      time: "3m",
+      isCustomer: false,
+      seen: true,
+      agentInfo: {
+        name: "Manish Kumar Shah",
+        avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d"
+      }
     }
-  };
+  ],
+  2: [ // James's conversation
+    {
+      id: 1,
+      text: "I need to return my sweater - it has a tear in the sleeve.",
+      time: "5m",
+      isCustomer: true,
+      customerInfo: {
+        name: "James Wilson",
+        avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d"
+      }
+    },
+    {
+      id: 2,
+      text: "I understand your concern, James. I'll help you with the return process. Could you please share a photo of the damaged area?",
+      time: "4m",
+      isCustomer: false,
+      seen: true,
+      agentInfo: {
+        name: "Manish Kumar Shah",
+        avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d"
+      }
+    }
+  ],
+  3: [ // Sarah's conversation
+    {
+      id: 1,
+      text: "The jacket I received is the wrong size. I ordered a medium but got a small.",
+      time: "12m",
+      isCustomer: true,
+      customerInfo: {
+        name: "Sarah Parker",
+        avatar: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f"
+      }
+    },
+    {
+      id: 2,
+      text: "I apologize for the mix-up, Sarah. Let me check our inventory for the correct size and arrange an exchange for you.",
+      time: "10m",
+      isCustomer: false,
+      seen: true,
+      agentInfo: {
+        name: "Manish Kumar Shah",
+        avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d"
+      }
+    }
+  ],
+  4: [ // Michael's conversation
+    {
+      id: 1,
+      text: "Is it possible to exchange the shoes I bought? They're a bit tight.",
+      time: "25m",
+      isCustomer: true,
+      customerInfo: {
+        name: "Michael Chen",
+        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e"
+      }
+    },
+    {
+      id: 2,
+      text: "Of course, Michael! We can help you with that. What size would you like to exchange them for?",
+      time: "23m",
+      isCustomer: false,
+      seen: true,
+      agentInfo: {
+        name: "Manish Kumar Shah",
+        avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d"
+      }
+    }
+  ],
+  5: [ // Emma's conversation
+    {
+      id: 1,
+      text: "The color of the dress doesn't match what was shown on the website.",
+      time: "1h",
+      isCustomer: true,
+      customerInfo: {
+        name: "Emma Thompson",
+        avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80"
+      }
+    },
+    {
+      id: 2,
+      text: "I'm sorry to hear that, Emma. Could you please share a photo of the dress you received? I'll compare it with our product images.",
+      time: "58m",
+      isCustomer: false,
+      seen: true,
+      agentInfo: {
+        name: "Manish Kumar Shah",
+        avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d"
+      }
+    }
+  ]
+};
+
+const ChatWindow = ({ conversation, onShowDetails, onShowCopilot, messageInput, setMessageInput }) => {
+  if (!conversation) {
+    return (
+      <div className="flex-1 flex items-center justify-center bg-gray-50">
+        <p className="text-gray-500">Select a conversation to start chatting</p>
+      </div>
+    );
+  }
+
+  const currentMessages = conversations[conversation.id] || [];
 
   return (
-    <div className="flex-1 flex flex-col bg-[#f7fafc] h-full overflow-y-auto animate-fade-in">
-      {/* Chat header */}
-      <div className="px-4 py-4 border-b border-gray-200 flex items-center justify-between bg-white relative shadow-sm">
-        <div className="flex items-center gap-3">
-          {isTabletOrMobile && onBack && (
-            <button className="mr-2 p-2 rounded-full bg-gray-100 hover:bg-gray-200 shadow transition" onClick={onBack} aria-label="Back">
-              <ArrowLeft size={22} />
-            </button>
-          )}
-          <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Tom Simone" className="h-9 w-9 rounded-full object-cover shadow" />
+    <div className="flex-1 flex flex-col h-full bg-white min-w-[440px] max-w-[516px] border-r border-gray-200">
+      {/* Chat Header */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <div className="flex items-center space-x-4">
+          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-medium">
+            {conversation.name.charAt(0)}
+          </div>
           <div>
-            <div className="font-semibold text-gray-800 text-base flex items-center gap-1">Tom Simone <CheckCircle className="text-green-500" size={18} /></div>
-            <div className="text-xs text-gray-500">1m ago</div>
+            <h2 className="text-base font-semibold text-gray-900">{conversation.name}</h2>
+            <p className="text-sm text-gray-500">Active now</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          {showDetailsButton && (
-            <button
-              className="block xl:hidden bg-white border border-gray-300 rounded px-3 py-1 shadow hover:bg-gray-100 transition"
-              onClick={onShowDetails}
-            >
-              Show Details
-            </button>
-          )}
-          <button className="text-xs px-3 py-1 border border-gray-300 rounded hover:bg-gray-100 flex items-center gap-1 transition"><X size={18} /> Close</button>
+        <div className="flex items-center space-x-2">
+          <button 
+            className="p-2 hover:bg-gray-100 rounded-lg" 
+            title="Star"
+            onClick={onShowDetails}
+          >
+            <Star className="w-5 h-5 text-gray-500" />
+          </button>
+          <button className="p-2 hover:bg-gray-100 rounded-lg" title="Notes">
+            <FileText className="w-5 h-5 text-gray-500" />
+          </button>
+          <button className="p-2 hover:bg-gray-100 rounded-lg" title="Call">
+            <Phone className="w-5 h-5 text-gray-500" />
+          </button>
+          <button className="p-2 hover:bg-gray-100 rounded-lg" title="Video">
+            <Video className="w-5 h-5 text-gray-500" />
+          </button>
+          <button 
+            className="p-2 hover:bg-gray-100 rounded-lg" 
+            title="More"
+            onClick={onShowCopilot}
+          >
+            <MoreHorizontal className="w-5 h-5 text-gray-500" />
+          </button>
         </div>
       </div>
-      {/* Chat messages */}
-      <div className="flex-1 px-4 py-6 space-y-6 overflow-y-auto bg-white">
-        {messages.map((msg, idx) =>
-          msg.type === "summary" ? (
-            <div
-              key={idx}
-              className="flex items-center gap-2 animate-fade-in"
-            >
-              <div className="bg-yellow-100 border-l-4 border-yellow-400 px-4 py-2 rounded shadow flex-1 flex items-center gap-2">
-                <Info className="text-yellow-500" size={20} />
-                <div>
-                  <div className="font-semibold text-yellow-800 mb-1">Summary</div>
-                  <div className="text-yellow-900 text-sm">{msg.content}</div>
-                </div>
-              </div>
-              <span className="text-xs text-gray-400 self-end">{msg.time}</span>
-            </div>
-          ) : (
-            <div key={idx} className={`flex ${msg.type === "user" ? "justify-start" : "justify-end"}`}> 
-              <div className={`flex flex-col gap-1 max-w-md ${msg.type === "user" ? "items-start" : "items-end"}`}>
-                <div className="flex items-center gap-2">
-                  <img src={msg.avatar} alt={msg.name} className="w-8 h-8 rounded-full object-cover shadow" />
-                  <span className="text-xs text-gray-500">{msg.name}</span>
-                </div>
-                {msg.image && (
-                  <img src={msg.image} alt="attachment" className="w-40 h-32 object-cover rounded-lg border shadow" />
-                )}
-                <div className={`px-5 py-3 rounded-2xl shadow-lg ${msg.type === "user" ? "bg-blue-100 text-blue-900" : "bg-gray-100 text-gray-800 border"} animate-scale-in`}>{msg.content}</div>
-                <span className="text-xs text-gray-400">{msg.time}</span>
-              </div>
-            </div>
-          )
-        )}
-        <div ref={messagesEndRef} />
+
+      {/* Messages Area */}
+      <div className="flex-1 overflow-y-auto px-6 py-4">
+        {currentMessages.map(message => (
+          <ChatMessage 
+            key={message.id}
+            message={message}
+            isCustomer={message.isCustomer}
+          />
+        ))}
       </div>
-      {/* Reply box */}
-      <div className="px-4 py-4 border-t border-gray-200 bg-white flex items-center gap-2 animate-fade-in">
-        <button className="p-2 rounded hover:bg-gray-100 transition"><Paperclip size={20} /></button>
-        <button className="p-2 rounded hover:bg-gray-100 transition"><Smile size={20} /></button>
-        <input
-          type="text"
-          placeholder="Message..."
-          className="flex-1 px-4 py-2 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-200 text-base bg-white/80"
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && handleSend()}
-        />
-        <button
-          className="bg-blue-600 text-white px-5 py-2 rounded-2xl font-semibold hover:bg-blue-700 transition text-base flex items-center gap-1 animate-scale-in shadow"
-          onClick={handleSend}
-        >
-          <Send size={20} /> Send
-        </button>
+
+      {/* Input Area */}
+      <div className="px-6 py-4 border-t border-gray-200">
+        {/* Reply Dropdown */}
+        <div className="flex items-center mb-3">
+          <MessageSquare className="w-5 h-5 text-gray-700 stroke-[3] mr-1" />
+          <button className="flex items-center space-x-1 text-sm text-gray-700 hover:bg-gray-100 px-2 py-1 rounded">
+            <span className="font-medium">Reply</span>
+            <ChevronDown className="w-4 h-4 stroke-[2.5]" />
+          </button>
+        </div>
+
+        {/* Main Input Area */}
+        <div className="flex flex-col space-y-1.5">
+          <div className="relative">
+            <input
+              type="text"
+              className="w-full px-4 py-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs text-gray-500"
+              value="Use ⌘K for shortcuts"
+              readOnly
+            />
+          </div>
+
+          {/* Bottom Action Bar */}
+          <div className="flex items-center justify-between pt-0.5">
+            <div className="flex items-center -ml-2 space-x-1">
+              <button className="p-2 hover:bg-gray-100 rounded-lg" title="Quick Reply">
+                <Zap className="w-5 h-5 text-gray-700 stroke-[2.5]" />
+              </button>
+              <button className="p-2 hover:bg-gray-100 rounded-lg" title="Notes">
+                <FileText className="w-5 h-5 text-gray-700 stroke-[2.5]" />
+              </button>
+              <button className="p-2 hover:bg-gray-100 rounded-lg" title="Image">
+                <Image className="w-5 h-5 text-gray-700 stroke-[2.5]" />
+              </button>
+              <button className="p-2 hover:bg-gray-100 rounded-lg" title="Emoji">
+                <Smile className="w-5 h-5 text-gray-700 stroke-[2.5]" />
+              </button>
+              <button className="p-2 hover:bg-gray-100 rounded-lg" title="Clock">
+                <Clock className="w-5 h-5 text-gray-700 stroke-[2.5]" />
+              </button>
+            </div>
+            <button 
+              className="flex items-center space-x-1 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
+            >
+              <span>Send</span>
+              <ChevronDown className="w-4 h-4 stroke-[2.5]" />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
