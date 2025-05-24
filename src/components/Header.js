@@ -24,24 +24,24 @@ const Header = () => {
               placeholder="Search conversations, users, or teams..."
               className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 [@media(max-width:1024px)]:w-3.5 [@media(max-width:1024px)]:h-3.5 text-gray-400" strokeWidth={2.5} />
           </div>
         </div>
 
         <div className="flex items-center space-x-4">
           <button className="text-gray-600 hover:text-gray-900">
-            <Bell className="h-5 w-5" />
+            <Bell className="w-5 h-5 [@media(max-width:1024px)]:w-4 [@media(max-width:1024px)]:h-4" strokeWidth={2.5} />
           </button>
           <button className="text-gray-600 hover:text-gray-900">
-            <Settings className="h-5 w-5" />
+            <Settings className="w-5 h-5 [@media(max-width:1024px)]:w-4 [@media(max-width:1024px)]:h-4" strokeWidth={2.5} />
           </button>
           <div className="relative">
             <button 
               className="flex items-center space-x-2"
               onClick={() => setShowAccountMenu(!showAccountMenu)}
             >
-              <span className="text-sm text-gray-700">Manish Kumar Shah</span>
-              <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm">
+              <span className="text-sm [@media(max-width:1024px)]:text-xs text-gray-700">Manish Kumar Shah</span>
+              <div className="h-8 w-8 [@media(max-width:1024px)]:w-7 [@media(max-width:1024px)]:h-7 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm [@media(max-width:1024px)]:text-xs">
                 MK
               </div>
             </button>

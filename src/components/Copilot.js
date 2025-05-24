@@ -1,169 +1,99 @@
 import React, { useState } from 'react';
-import { Sparkles, Send, Loader2, ThumbsUp, ThumbsDown, Copy, RotateCcw } from 'lucide-react';
+import { X, ChevronDown, MessageSquare, Bot } from 'lucide-react';
 
-const Copilot = ({ conversation, onClose, onInsertResponse }) => {
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+const Copilot = ({ onClose, onInsertResponse, currentConversation, onSwitchPanel }) => {
+  const [selectedResponse, setSelectedResponse] = useState(null);
 
-  // Sample suggestions based on conversation context
-  const suggestions = [
-    "Write a response addressing the shipping delay",
-    "Generate an apology for the technical issue",
-    "Create a summary of the conversation",
-    "Suggest next steps for resolution"
+  const suggestedResponses = [
+    {
+      id: 1,
+      title: "What is our refund policy for damaged items?",
+      response: "Hi, our standard policy for damaged items allows for a full refund within 3 business days of receipt. I've also sent you a document voucher for the inconvenience.",
+      sources: [
+        "Getting a refund",
+        "Loyalty refund means",
+        "Refund for damaged gift"
+      ]
+    }
   ];
 
-  const handleSubmit = async (prompt) => {
-    setIsLoading(true);
-    const userMessage = prompt || input;
-    
-    // Add user message to chat
-    setMessages(prev => [...prev, { type: 'user', content: userMessage }]);
-    setInput('');
-
-    // Simulate AI response (replace with actual API call)
-    setTimeout(() => {
-      const aiResponse = "I understand you're looking for assistance with this matter. Based on the conversation context, here's a suggested response that addresses the customer's concerns while maintaining a professional and empathetic tone...";
-      setMessages(prev => [...prev, { type: 'assistant', content: aiResponse }]);
-      setIsLoading(false);
-    }, 1000);
-  };
-
-  const handleSuggestionClick = (suggestion) => {
-    handleSubmit(suggestion);
-  };
-
-  const handleFeedback = (messageIndex, isPositive) => {
-    setMessages(prev => prev.map((msg, idx) => 
-      idx === messageIndex ? { ...msg, feedback: isPositive } : msg
-    ));
-  };
-
-  const handleCopy = (content) => {
-    navigator.clipboard.writeText(content);
-    onInsertResponse(content);
-  };
-
-  const handleRegenerate = (messageIndex) => {
-    setMessages(prev => prev.filter((_, idx) => idx !== messageIndex));
-    handleSubmit(messages[messageIndex - 1].content);
+  const handleAddToComposer = (response) => {
+    onInsertResponse(response);
   };
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full bg-white flex flex-col w-[332px] [@media(max-width:1024px)]:w-[260px] [@media(max-width:1024px)]:ml-[0px]">
       {/* Header */}
-      <div className="flex items-center p-4 border-b border-gray-200">
-        <Sparkles className="w-5 h-5 text-blue-600 mr-2" />
-        <span className="font-medium text-gray-900">AI Copilot</span>
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={() => onSwitchPanel('details')}
+            className="text-sm font-medium text-gray-500 hover:text-gray-900 py-1"
+          >
+            Details
+          </button>
+          <div className="h-4 w-[1px] bg-gray-200 mx-2"></div>
+          <button 
+            className={`text-sm font-medium text-gray-900 border-b-2 border-[#0057FF] py-1`}
+          >
+            AI Copilot
+          </button>
+        </div>
+        <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+          <X className="w-5 h-5" strokeWidth={2.5} />
+        </button>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {/* Suggestions */}
-        {messages.length === 0 && (
-          <div className="space-y-2">
-            <p className="text-sm text-gray-600">Suggested prompts:</p>
-            <div className="grid grid-cols-1 gap-2">
-              {suggestions.map((suggestion, index) => (
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-4">
+        {suggestedResponses.map((item) => (
+          <div key={item.id} className="mb-6">
+            <div className="flex items-start gap-3 mb-3">
+              <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                <Bot className="w-5 h-5 text-blue-600" strokeWidth={2.5} />
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-900 mb-1">
+                  {item.title}
+                </h3>
+                <p className="text-sm text-gray-600">
+                  {item.response}
+                </p>
                 <button
-                  key={index}
-                  onClick={() => handleSuggestionClick(suggestion)}
-                  className="text-left text-sm p-3 rounded-lg border border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                  onClick={() => handleAddToComposer(item.response)}
+                  className="mt-2 text-xs font-medium text-[#0057FF] hover:underline flex items-center gap-1"
                 >
-                  {suggestion}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Chat Messages */}
-        {messages.map((message, index) => (
-          <div
-            key={index}
-            className={`flex flex-col ${
-              message.type === 'user' ? 'items-end' : 'items-start'
-            }`}
-          >
-            <div
-              className={`max-w-[80%] rounded-lg p-3 ${
-                message.type === 'user'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-900'
-              }`}
-            >
-              <p className="text-sm">{message.content}</p>
-            </div>
-            
-            {/* Actions for AI responses */}
-            {message.type === 'assistant' && (
-              <div className="flex items-center space-x-2 mt-2">
-                <button
-                  onClick={() => handleFeedback(index, true)}
-                  className={`p-1 rounded hover:bg-gray-100 ${
-                    message.feedback === true ? 'text-green-600' : 'text-gray-400'
-                  }`}
-                >
-                  <ThumbsUp className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => handleFeedback(index, false)}
-                  className={`p-1 rounded hover:bg-gray-100 ${
-                    message.feedback === false ? 'text-red-600' : 'text-gray-400'
-                  }`}
-                >
-                  <ThumbsDown className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => handleCopy(message.content)}
-                  className="p-1 rounded hover:bg-gray-100 text-gray-400"
-                >
-                  <Copy className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => handleRegenerate(index)}
-                  className="p-1 rounded hover:bg-gray-100 text-gray-400"
-                >
-                  <RotateCcw className="w-4 h-4" />
+                  Add to composer
+                  <ChevronDown className="w-3 h-3" strokeWidth={2.5} />
                 </button>
               </div>
-            )}
+            </div>
+
+            {/* Sources */}
+            <div className="ml-11">
+              <h4 className="text-xs font-medium text-gray-500 mb-1">SOURCES</h4>
+              <div className="space-y-1">
+                {item.sources.map((source, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 text-sm text-gray-600"
+                  >
+                    <MessageSquare className="w-4 h-4 text-gray-400" strokeWidth={2.5} />
+                    <span>{source}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         ))}
-
-        {/* Loading indicator */}
-        {isLoading && (
-          <div className="flex items-center justify-center py-4">
-            <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
-          </div>
-        )}
       </div>
 
-      {/* Input */}
-      <div className="p-4 border-t border-gray-200">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (input.trim()) handleSubmit();
-          }}
-          className="flex items-center space-x-2"
-        >
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask AI Copilot..."
-            className="flex-1 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          <button
-            type="submit"
-            disabled={!input.trim() || isLoading}
-            className="p-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Send className="w-5 h-5" />
-          </button>
-        </form>
+      {/* Footer */}
+      <div className="px-4 py-3 border-t border-gray-200">
+        <button className="w-full flex items-center justify-center gap-2 text-sm text-gray-600 hover:text-gray-900">
+          <MessageSquare className="w-4 h-4" strokeWidth={2.5} />
+          Ask a question
+        </button>
       </div>
     </div>
   );
