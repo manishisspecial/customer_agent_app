@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Star, Clock, Phone, Video, Settings, Plus, Smile, Send, Paperclip, Image, Bot, MoreHorizontal, 
-  Zap, FileText, Mail, MessageSquare, Flag, ThumbsUp, ThumbsDown, Reply, ChevronDown, Search } from "lucide-react";
+  Zap, FileText, Mail, MessageSquare, Flag, ThumbsUp, ThumbsDown, Reply, ChevronDown, Search, ArrowLeft } from "lucide-react";
 import ChatMessage from './ChatMessage';
 
 // Default avatar to use as fallback
@@ -325,10 +325,17 @@ const conversations = {
   ]
 };
 
-const ChatWindow = ({ conversation, onShowDetails, onShowCopilot, messageInput, setMessageInput, activePanel }) => {
+const ChatWindow = ({ 
+  conversation, 
+  onShowDetails, 
+  onShowCopilot, 
+  onBack,
+  messageInput,
+  setMessageInput,
+  activePanel 
+}) => {
   const [messages, setMessages] = useState(conversations[conversation?.id] || []);
   
-  // Update messages when conversation changes
   useEffect(() => {
     if (conversation?.id) {
       setMessages(conversations[conversation.id] || []);
@@ -369,17 +376,24 @@ const ChatWindow = ({ conversation, onShowDetails, onShowCopilot, messageInput, 
     );
   }
 
-  // Get the customer info from the first message
   const customerInfo = messages.find(m => m.isCustomer)?.customerInfo || {
     name: conversation.user.name,
     avatar: conversation.user.avatar
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-white min-w-[440px] max-w-[516px] [@media(max-width:1024px)]:min-w-[330px] [@media(max-width:1024px)]:max-w-[440px] [@media(max-width:1024px)]:ml-[0px] border-r border-gray-200">
+    <div className="flex-1 flex flex-col h-full bg-white min-w-[440px] max-w-[516px] [@media(max-width:1024px)]:min-w-[330px] [@media(max-width:1024px)]:max-w-[440px] [@media(max-width:1024px)]:ml-[0px] [@media(max-width:425px)]:min-w-0 [@media(max-width:425px)]:max-w-full border-r border-gray-200">
       {/* Chat Header */}
-      <div className="flex items-center justify-between px-6 [@media(max-width:1024px)]:pl-3 py-4 border-b border-gray-200">
+      <div className="flex items-center justify-between px-6 [@media(max-width:1024px)]:px-3 [@media(max-width:425px)]:px-2 py-4 [@media(max-width:425px)]:py-2 border-b border-gray-200">
         <div className="flex items-center space-x-4 [@media(max-width:1024px)]:space-x-2 flex-shrink min-w-0 [@media(max-width:1024px)]:max-w-[45%]">
+          {onBack && (
+            <button 
+              onClick={onBack}
+              className="p-1 hover:bg-gray-100 rounded-lg [@media(max-width:425px)]:mr-1 hidden [@media(max-width:425px)]:block"
+            >
+              <ArrowLeft className="w-5 h-5 [@media(max-width:425px)]:w-4 [@media(max-width:425px)]:h-4" />
+            </button>
+          )}
           <img 
             src={customerInfo.avatar}
             alt={customerInfo.name}
@@ -391,20 +405,20 @@ const ChatWindow = ({ conversation, onShowDetails, onShowCopilot, messageInput, 
           </div>
         </div>
         <div className="flex items-center gap-0.5 flex-shrink-0">
-          <button
+          <button 
             className={`p-2 [@media(max-width:1024px)]:p-1.5 hover:bg-gray-100 rounded-lg ${activePanel === 'details' ? 'bg-gray-100' : ''}`}
-            title="Star"
+            title="Details"
             onClick={onShowDetails}
           >
             <Star className={`w-5 h-5 [@media(max-width:1024px)]:w-4 [@media(max-width:1024px)]:h-4 ${activePanel === 'details' ? 'text-blue-600' : 'text-gray-500'}`} />
           </button>
-          <button className="p-2 [@media(max-width:1024px)]:p-1.5 hover:bg-gray-100 rounded-lg" title="Notes">
+          <button className="p-2 [@media(max-width:1024px)]:p-1.5 hover:bg-gray-100 rounded-lg [@media(max-width:425px)]:hidden" title="Notes">
             <FileText className="w-5 h-5 [@media(max-width:1024px)]:w-4 [@media(max-width:1024px)]:h-4 text-gray-500" />
           </button>
-          <button className="p-2 [@media(max-width:1024px)]:p-1.5 hover:bg-gray-100 rounded-lg" title="Call">
+          <button className="p-2 [@media(max-width:1024px)]:p-1.5 hover:bg-gray-100 rounded-lg [@media(max-width:425px)]:hidden" title="Call">
             <Phone className="w-5 h-5 [@media(max-width:1024px)]:w-4 [@media(max-width:1024px)]:h-4 text-gray-500" />
           </button>
-          <button className="p-2 [@media(max-width:1024px)]:p-1.5 hover:bg-gray-100 rounded-lg" title="Video">
+          <button className="p-2 [@media(max-width:1024px)]:p-1.5 hover:bg-gray-100 rounded-lg [@media(max-width:425px)]:hidden" title="Video">
             <Video className="w-5 h-5 [@media(max-width:1024px)]:w-4 [@media(max-width:1024px)]:h-4 text-gray-500" />
           </button>
           <button 
@@ -418,13 +432,13 @@ const ChatWindow = ({ conversation, onShowDetails, onShowCopilot, messageInput, 
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto px-6 [@media(max-width:1024px)]:px-4 py-4 space-y-4">
+      <div className="flex-1 overflow-y-auto px-6 [@media(max-width:1024px)]:px-4 [@media(max-width:425px)]:px-2 py-4 space-y-4">
         {messages.map((message) => (
           <div 
             key={message.id}
-            className={`flex ${message.isCustomer ? 'justify-start' : 'justify-start'} w-full`}
+            className={`flex ${message.isCustomer ? 'justify-start' : 'justify-end'} w-full`}
           >
-            <div className={`max-w-[85%] rounded-lg p-3 ${
+            <div className={`max-w-[85%] [@media(max-width:425px)]:max-w-[90%] rounded-lg p-3 [@media(max-width:425px)]:p-2 ${
               message.isCustomer 
                 ? 'bg-gray-100 text-gray-900' 
                 : 'bg-[#0057FF] text-white'
@@ -436,11 +450,11 @@ const ChatWindow = ({ conversation, onShowDetails, onShowCopilot, messageInput, 
                     <img 
                       src={message.attachment.image} 
                       alt={message.attachment.title || 'Attachment'} 
-                      className="w-full h-32 object-cover"
+                      className="w-full h-32 [@media(max-width:425px)]:h-24 object-cover"
                     />
                   )}
                   {(message.attachment.title || message.attachment.subtitle) && (
-                    <div className="p-3">
+                    <div className="p-3 [@media(max-width:425px)]:p-2">
                       {message.attachment.title && (
                         <p className="text-[13px] [@media(max-width:1024px)]:text-xs font-medium text-gray-900">
                           {message.attachment.title}
@@ -465,9 +479,9 @@ const ChatWindow = ({ conversation, onShowDetails, onShowCopilot, messageInput, 
 
       {/* Input Area */}
       <div className="flex-shrink-0 border-t border-gray-200">
-        <div className="px-6 [@media(max-width:1024px)]:px-4 py-4">
-          {/* Reply Dropdown */}
-          <div className="flex items-center mb-3">
+        <div className="px-6 [@media(max-width:1024px)]:px-4 [@media(max-width:425px)]:px-2 py-4 [@media(max-width:425px)]:py-2">
+          {/* Reply Dropdown - Hide on mobile */}
+          <div className="flex items-center mb-3 [@media(max-width:425px)]:hidden">
             <MessageSquare className="w-5 h-5 text-gray-700 stroke-[3] mr-1" />
             <button className="flex items-center space-x-1 text-sm text-gray-700 hover:bg-gray-100 px-2 py-1 rounded">
               <span className="font-medium [@media(max-width:1024px)]:text-xs">Reply</span>
@@ -477,20 +491,20 @@ const ChatWindow = ({ conversation, onShowDetails, onShowCopilot, messageInput, 
 
           {/* Main Input Area */}
           <div className="flex flex-col space-y-1.5">
-            <div className="relative [@media(max-width:1024px)]:mr-6">
-              <input
-                type="text"
-                className="w-full px-4 py-4 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-700"
+            <div className="relative [@media(max-width:1024px)]:mr-6 [@media(max-width:425px)]:mr-0">
+              <textarea
+                className="w-full px-4 [@media(max-width:425px)]:px-3 py-3 [@media(max-width:425px)]:py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-700 resize-none min-h-[44px] [@media(max-width:425px)]:min-h-[38px]"
                 placeholder="Type your message..."
                 value={messageInput}
                 onChange={(e) => setMessageInput(e.target.value)}
                 onKeyPress={handleKeyPress}
+                rows="1"
               />
             </div>
 
             {/* Bottom Action Bar */}
             <div className="flex items-center justify-between pt-0.5">
-              <div className="flex items-center -ml-2 space-x-1">
+              <div className="flex items-center -ml-2 space-x-1 [@media(max-width:425px)]:hidden">
                 <button className="p-2 hover:bg-gray-100 rounded-lg flex-shrink-0" title="Quick Reply">
                   <Zap className="w-5 h-5 [@media(max-width:1024px)]:w-4 [@media(max-width:1024px)]:h-4 text-gray-700 stroke-[2.5]" />
                 </button>
@@ -510,13 +524,14 @@ const ChatWindow = ({ conversation, onShowDetails, onShowCopilot, messageInput, 
               <button
                 onClick={handleSendMessage}
                 disabled={!messageInput.trim()}
-                className={`flex-shrink-0 flex items-center space-x-1 px-3 py-1.5 text-sm rounded-lg ${
+                className={`flex-shrink-0 flex items-center space-x-1 px-3 py-1.5 [@media(max-width:425px)]:px-2 [@media(max-width:425px)]:py-1 text-sm rounded-lg ${
                   messageInput.trim() 
                     ? 'text-white bg-blue-600 hover:bg-blue-700' 
                     : 'text-gray-400 bg-gray-100'
                 }`}
               >
-                <span className="font-medium [@media(max-width:1024px)]:text-xs">Send</span>
+                <Send className="w-5 h-5 [@media(max-width:1024px)]:w-4 [@media(max-width:1024px)]:h-4" />
+                <span className="font-medium [@media(max-width:1024px)]:text-xs [@media(max-width:425px)]:hidden">Send</span>
               </button>
             </div>
           </div>

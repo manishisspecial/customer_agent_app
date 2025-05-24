@@ -48,14 +48,37 @@ const ProtectedRoute = ({ children }) => {
 const App = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedConversation, setSelectedConversation] = useState(null);
-  const [rightPanel, setRightPanel] = useState('copilot'); // Changed from 'details' to 'copilot'
-  const [showRightPanel, setShowRightPanel] = useState(true);
+  const [rightPanel, setRightPanel] = useState('copilot');
+  const [showRightPanel, setShowRightPanel] = useState(false);
   const [messageInput, setMessageInput] = useState('');
   const [currentView, setCurrentView] = useState('list');
   const [isAuthenticated, setIsAuthenticated] = useState(
     localStorage.getItem('isAuthenticated') === 'true'
   );
   
+  // Handle screen size changes
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      // Hide panels by default on tablet and mobile
+      if (width <= 768) {
+        setShowRightPanel(false);
+      } else {
+        setShowRightPanel(true);
+      }
+      // Switch to list view on mobile
+      if (width <= 425) {
+        setCurrentView('list');
+      }
+    };
+
+    // Initial check
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const isMobile = window.innerWidth < 768;
   const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
   const is4K = window.innerWidth >= 2560;
@@ -136,13 +159,13 @@ const App = () => {
                   <Sidebar 
                     isOpen={isSidebarOpen} 
                     setIsOpen={setIsSidebarOpen}
-                    isMobile={isMobile || isTablet}
+                    isMobile={window.innerWidth <= 768}
                   />
                   
                   <div className="flex-1 flex overflow-hidden">
                     <div className={`
                       transition-all duration-300
-                      ${isSidebarOpen ? 'w-[306px] [@media(max-width:1024px)]:w-[220px]' : 'w-0'}
+                      ${isSidebarOpen ? 'w-[306px] [@media(max-width:1024px)]:w-[220px] [@media(max-width:768px)]:w-[216px]' : 'w-0'}
                       flex-shrink-0 bg-white border-r border-gray-200
                       ${isSidebarOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}
                     `}>
@@ -151,66 +174,45 @@ const App = () => {
 
                     <div className={`
                       flex flex-1 min-w-0
-                      ${is4K ? 'max-w-[2560px] mx-auto' : ''}
-                      ml-[-17px]
+                      ${window.innerWidth >= 2560 ? 'max-w-[2560px] mx-auto' : ''}
                     `}>
-          {(isTablet || isMobile) ? (
-            <>
-                          {currentView === "list" && (
-                            <div className="w-full min-w-[306px]">
+                      {window.innerWidth <= 425 ? (
+                        <>
+                          {currentView === 'list' && (
+                            <div className="w-full">
                               <ConversationList 
                                 onSelect={handleSelectConversation} 
                                 selectedId={selectedConversation?.id} 
                               />
                             </div>
                           )}
-                          {currentView === "chat" && (
-                            <div className="w-full min-w-[306px]">
+                          {currentView === 'chat' && (
+                            <div className="w-full">
                               <ChatWindow 
                                 conversation={selectedConversation}
                                 onShowDetails={handleShowDetails}
                                 onShowCopilot={handleShowCopilot}
-                                onBack={isMobile ? handleBack : undefined}
+                                onBack={() => setCurrentView('list')}
                                 messageInput={messageInput}
                                 setMessageInput={setMessageInput}
                                 activePanel={showRightPanel ? rightPanel : null}
                               />
-                </div>
-              )}
-                          {showRightPanel && (
-                            <div className="fixed inset-0 z-50 bg-black/30 flex items-end md:items-center justify-center">
-                              <div className="w-full max-w-md bg-white rounded-t-2xl md:rounded-2xl shadow-2xl">
-                                {rightPanel === 'details' ? (
-                                  <ConversationDetails 
-                                    conversation={selectedConversation}
-                                    onClose={handleCloseRightPanel}
-                                    onSwitchPanel={(panel) => setRightPanel(panel)}
-                                  />
-                                ) : (
-                                  <Copilot 
-                                    onClose={handleCloseRightPanel}
-                                    onInsertResponse={handleInsertResponse}
-                                    currentConversation={selectedConversation}
-                                    onSwitchPanel={(panel) => setRightPanel(panel)}
-                                  />
-                                )}
-                  </div>
-                </div>
-              )}
-            </>
-          ) : (
-            <>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <>
                           <div className={`
                             flex-shrink-0 bg-white border-r border-gray-200
-                            w-[306px] ml-8 [@media(max-width:1024px)]:w-[205px]
+                            w-[306px] [@media(max-width:1024px)]:w-[220px] [@media(max-width:768px)]:w-[216px]
                           `}>
                             <ConversationList 
                               onSelect={handleSelectConversation} 
                               selectedId={selectedConversation?.id} 
                             />
-              </div>
+                          </div>
                           
-                          <div className="flex-1 min-w-[306px] bg-white">
+                          <div className="flex-1 min-w-[306px] [@media(max-width:768px)]:min-w-[250px] bg-white">
                             {selectedConversation ? (
                               <ChatWindow 
                                 conversation={selectedConversation}
@@ -236,35 +238,39 @@ const App = () => {
                                 </button>
                               </div>
                             )}
-              </div>
+                          </div>
 
                           {showRightPanel && (
                             <div className={`
-                              bg-white border-l border-gray-200 transition-all duration-300
-                              w-[332px]
+                              ${window.innerWidth <= 768 ? 'fixed inset-0 z-50 bg-black/30 flex items-center justify-end' : 'relative'}
                             `}>
-                              {rightPanel === 'details' ? (
-                                <ConversationDetails 
-                                  conversation={selectedConversation}
-                                  onClose={handleCloseRightPanel}
-                                  onSwitchPanel={(panel) => setRightPanel(panel)}
-                                />
-                              ) : (
-                                <Copilot 
-                                  onClose={handleCloseRightPanel}
-                                  onInsertResponse={handleInsertResponse}
-                                  currentConversation={selectedConversation}
-                                  onSwitchPanel={(panel) => setRightPanel(panel)}
-                                />
-                              )}
-              </div>
+                              <div className={`
+                                bg-white border-l border-gray-200 h-full
+                                ${window.innerWidth <= 768 ? 'w-[280px] shadow-xl' : 'w-[332px]'}
+                              `}>
+                                {rightPanel === 'details' ? (
+                                  <ConversationDetails 
+                                    conversation={selectedConversation}
+                                    onClose={window.innerWidth <= 768 ? handleCloseRightPanel : undefined}
+                                    onSwitchPanel={(panel) => setRightPanel(panel)}
+                                  />
+                                ) : (
+                                  <Copilot 
+                                    onClose={window.innerWidth <= 768 ? handleCloseRightPanel : undefined}
+                                    onInsertResponse={handleInsertResponse}
+                                    currentConversation={selectedConversation}
+                                    onSwitchPanel={(panel) => setRightPanel(panel)}
+                                  />
+                                )}
+                              </div>
+                            </div>
                           )}
-            </>
-          )}
-        </div>
-      </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
-    </div>
+              </div>
             </ProtectedRoute>
           }
         />

@@ -107,38 +107,43 @@ const ConversationList = ({ onSelect, selectedId }) => {
               onClick={() => onSelect(conversation)}
               className={`w-full text-left px-3 [@media(max-width:1024px)]:px-2 py-2.5 [@media(max-width:1024px)]:py-2 hover:bg-gray-50 transition-colors border-b border-gray-100
                 ${selectedId === conversation.id ? 'bg-blue-50' : ''}
+                [@media(max-width:425px)]:px-2 [@media(max-width:425px)]:py-2
               `}
             >
-              <div className="flex items-start gap-2 [@media(max-width:1024px)]:gap-1.5">
+              <div className="flex items-start gap-2 [@media(max-width:1024px)]:gap-1.5 [@media(max-width:425px)]:gap-2">
                 <img 
                   src={conversation.user.avatar} 
                   alt={conversation.user.name}
-                  className="w-7 h-7 [@media(max-width:1024px)]:w-6 [@media(max-width:1024px)]:h-6 rounded-full" 
+                  className="w-7 h-7 [@media(max-width:1024px)]:w-6 [@media(max-width:1024px)]:h-6 [@media(max-width:425px)]:w-8 [@media(max-width:425px)]:h-8 rounded-full" 
                 />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                    <h3 className="text-xs [@media(max-width:1024px)]:text-[11px] font-medium text-gray-900 truncate">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs [@media(max-width:1024px)]:text-[11px] [@media(max-width:425px)]:text-xs font-medium text-gray-900 truncate">
                       {conversation.user.name}
                     </h3>
-                    <span className="text-[10px] [@media(max-width:1024px)]:text-[9px] text-gray-500">{conversation.user.time}</span>
+                    <span className="text-[10px] [@media(max-width:1024px)]:text-[9px] [@media(max-width:425px)]:text-[10px] text-gray-500">
+                      {conversation.user.time}
+                    </span>
                   </div>
-                  <p className="text-xs [@media(max-width:1024px)]:text-[11px] text-gray-600 truncate">{conversation.user.message}</p>
+                  <p className="text-xs [@media(max-width:1024px)]:text-[11px] [@media(max-width:425px)]:text-xs text-gray-600 truncate">
+                    {conversation.user.message}
+                  </p>
                 </div>
               </div>
             </button>
           ))
         ) : (
-          <div className="h-full flex flex-col items-center justify-center p-6 [@media(max-width:1024px)]:p-4 text-center">
-            <div className="w-14 h-14 [@media(max-width:1024px)]:w-12 [@media(max-width:1024px)]:h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-              <MessageSquare className="w-7 h-7 [@media(max-width:1024px)]:w-6 [@media(max-width:1024px)]:h-6 text-blue-600" />
+          <div className="h-full flex flex-col items-center justify-center p-6 [@media(max-width:1024px)]:p-4 [@media(max-width:425px)]:p-3 text-center">
+            <div className="w-14 h-14 [@media(max-width:1024px)]:w-12 [@media(max-width:1024px)]:h-12 [@media(max-width:425px)]:w-10 [@media(max-width:425px)]:h-10 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+              <MessageSquare className="w-7 h-7 [@media(max-width:1024px)]:w-6 [@media(max-width:1024px)]:h-6 [@media(max-width:425px)]:w-5 [@media(max-width:425px)]:h-5 text-blue-600" />
             </div>
-            <h3 className="text-base [@media(max-width:1024px)]:text-sm font-semibold text-gray-900 mb-2">
+            <h3 className="text-base [@media(max-width:1024px)]:text-sm [@media(max-width:425px)]:text-sm font-semibold text-gray-900 mb-2">
               No conversations yet
             </h3>
-            <p className="text-xs [@media(max-width:1024px)]:text-[11px] text-gray-500 mb-4">
+            <p className="text-xs [@media(max-width:1024px)]:text-[11px] [@media(max-width:425px)]:text-xs text-gray-500 mb-4">
               Start a new conversation or wait for incoming messages
             </p>
-            <button className="px-3 py-1.5 [@media(max-width:1024px)]:px-2.5 [@media(max-width:1024px)]:py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-xs">
+            <button className="px-3 py-1.5 [@media(max-width:1024px)]:px-2.5 [@media(max-width:1024px)]:py-1 [@media(max-width:425px)]:px-2 [@media(max-width:425px)]:py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-xs">
               Start New Chat
             </button>
           </div>
