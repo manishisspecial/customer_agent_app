@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MessageSquare, Lock, User } from 'lucide-react';
+import { MessageSquare, Lock, User, Eye, EyeOff } from 'lucide-react';
 
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
@@ -33,8 +34,8 @@ const Login = ({ onLogin }) => {
       </nav>
 
       {/* Login Form */}
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full">
+      <div className="flex-1 flex flex-col items-center justify-center px-4">
+        <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
           <div className="text-center">
             <h2 className="text-3xl font-bold text-gray-900">Welcome back</h2>
             <p className="mt-2 text-sm text-gray-600">
@@ -44,8 +45,11 @@ const Login = ({ onLogin }) => {
 
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <div className="rounded-md shadow-sm space-y-4">
+              {/* Username Input */}
               <div>
-                <label htmlFor="username" className="sr-only">Username</label>
+                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+                  Username
+                </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <User className="h-5 w-5 text-gray-400" />
@@ -59,14 +63,18 @@ const Login = ({ onLogin }) => {
                     onChange={(e) => setUsername(e.target.value)}
                     className="appearance-none relative block w-full px-3 py-3 pl-10 
                              border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg
-                             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Username"
+                             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                             transition-colors duration-200"
+                    placeholder="Enter your username"
                   />
                 </div>
               </div>
 
+              {/* Password Input */}
               <div>
-                <label htmlFor="password" className="sr-only">Password</label>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                  Password
+                </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Lock className="h-5 w-5 text-gray-400" />
@@ -74,15 +82,27 @@ const Login = ({ onLogin }) => {
                   <input
                     id="password"
                     name="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="appearance-none relative block w-full px-3 py-3 pl-10
+                    className="appearance-none relative block w-full px-3 py-3 pl-10 pr-10
                              border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg
-                             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Password"
+                             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                             transition-colors duration-200"
+                    placeholder="Enter your password"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    ) : (
+                      <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    )}
+                  </button>
                 </div>
               </div>
             </div>
@@ -121,7 +141,7 @@ const Login = ({ onLogin }) => {
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-gradient-to-br from-blue-50 to-indigo-50 text-gray-500">
+                <span className="px-2 bg-white text-gray-500">
                   Default credentials
                 </span>
               </div>

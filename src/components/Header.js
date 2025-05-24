@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Search, Bell, Settings, MoreHorizontal } from "lucide-react";
+import { Search, Bell, Settings, MoreHorizontal, Camera, MoreVertical } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const [showAccountMenu, setShowAccountMenu] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -13,21 +14,17 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 z-50">
-      <div className="h-full flex items-center justify-between px-4">
-        <span className="text-xl font-semibold text-gray-900">BeyondChats</span>
-
-        <div className="flex-1 max-w-3xl mx-8">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search conversations, users, or teams..."
-              className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 [@media(max-width:1024px)]:w-3.5 [@media(max-width:1024px)]:h-3.5 text-gray-400" strokeWidth={2.5} />
-          </div>
+    <div className="fixed top-0 left-0 right-0 h-[66px] bg-white border-b border-gray-200 z-50">
+      {/* Desktop/Tablet Header - Hidden on Mobile */}
+      <div className="[@media(max-width:425px)]:hidden h-full flex items-center justify-between px-4">
+        <span className="font-semibold text-xl">BeyondChats</span>
+        <div className="w-96 relative">
+          <input
+            type="text"
+            placeholder="Search conversations, users, or teams..."
+            className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg"
+          />
         </div>
-
         <div className="flex items-center space-x-4">
           <button className="text-gray-600 hover:text-gray-900">
             <Bell className="w-5 h-5 [@media(max-width:1024px)]:w-4 [@media(max-width:1024px)]:h-4" strokeWidth={2.5} />
@@ -83,7 +80,53 @@ const Header = () => {
           </div>
         </div>
       </div>
-    </header>
+
+      {/* Mobile Header - Only shown on Mobile */}
+      <div className="hidden [@media(max-width:425px)]:flex h-14 items-center justify-between px-4">
+        <span className="font-semibold text-lg">BeyondChats</span>
+        
+        <div className="flex items-center gap-3">
+          <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100">
+            <Search className="w-5 h-5 text-gray-600" />
+          </button>
+          <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100">
+            <Camera className="w-5 h-5 text-gray-600" />
+          </button>
+          <div className="relative">
+            <button 
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100"
+            >
+              <MoreVertical className="w-5 h-5 text-gray-600" />
+            </button>
+            
+            {/* Mobile Settings Menu */}
+            {showMobileMenu && (
+              <>
+                <div 
+                  className="fixed inset-0 z-50" 
+                  onClick={() => setShowMobileMenu(false)}
+                />
+                <div className="absolute right-0 top-12 w-56 bg-white rounded-lg shadow-lg py-1 z-50">
+                  <button className="w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 hover:bg-gray-50">
+                    <Settings className="w-4 h-4" />
+                    Settings
+                  </button>
+                  <button className="w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 hover:bg-gray-50">
+                    <Bell className="w-4 h-4" />
+                    Notifications
+                  </button>
+                  <button className="w-full px-4 py-2.5 text-left text-sm flex items-center gap-3 hover:bg-gray-50">
+                    <Search className="w-4 h-4" />
+                    Search Settings
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

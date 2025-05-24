@@ -11,37 +11,29 @@ import Footer from "./components/Footer";
 import Login from "./components/Login";
 import ChatLayout from "./components/ChatLayout";
 import { MessageSquare } from "lucide-react";
+import BottomNav from "./components/BottomNav";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
-  useEffect(() => {
-    // Check session on mount
-    const sessionStart = localStorage.getItem('sessionStart');
-    if (!sessionStart) {
-      localStorage.removeItem('isAuthenticated');
-      window.location.href = '/';
-      return;
-    }
-
-    // Set up session timeout check
-    const checkSession = () => {
-      const now = new Date().getTime();
-      const sessionTime = now - parseInt(sessionStart);
-      if (sessionTime > 10 * 60 * 1000) { // 10 minutes
-        localStorage.removeItem('isAuthenticated');
-        localStorage.removeItem('sessionStart');
-        window.location.href = '/';
-      }
-    };
-
-    const interval = setInterval(checkSession, 30000); // Check every 30 seconds
-    return () => clearInterval(interval);
-  }, []);
-
   const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-  if (!isAuthenticated) {
+  const sessionStart = localStorage.getItem('sessionStart');
+
+  // Check if authenticated and session is valid
+  if (!isAuthenticated || !sessionStart) {
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('sessionStart');
     return <Navigate to="/" replace />;
   }
+
+  // Check session timeout (10 minutes)
+  const now = new Date().getTime();
+  const sessionTime = now - parseInt(sessionStart);
+  if (sessionTime > 10 * 60 * 1000) {
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('sessionStart');
+    return <Navigate to="/" replace />;
+  }
+
   return children;
 };
 
@@ -52,10 +44,33 @@ const App = () => {
   const [showRightPanel, setShowRightPanel] = useState(false);
   const [messageInput, setMessageInput] = useState('');
   const [currentView, setCurrentView] = useState('list');
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    localStorage.getItem('isAuthenticated') === 'true'
-  );
-  
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Initialize as false
+
+  useEffect(() => {
+    // Check authentication on mount
+    const isAuth = localStorage.getItem('isAuthenticated') === 'true';
+    const sessionStart = localStorage.getItem('sessionStart');
+    
+    if (!isAuth || !sessionStart) {
+      localStorage.removeItem('isAuthenticated');
+      localStorage.removeItem('sessionStart');
+      setIsAuthenticated(false);
+      return;
+    }
+
+    // Check session timeout
+    const now = new Date().getTime();
+    const sessionTime = now - parseInt(sessionStart);
+    if (sessionTime > 10 * 60 * 1000) {
+      localStorage.removeItem('isAuthenticated');
+      localStorage.removeItem('sessionStart');
+      setIsAuthenticated(false);
+      return;
+    }
+
+    setIsAuthenticated(true);
+  }, []);
+
   // Handle screen size changes
   useEffect(() => {
     const handleResize = () => {
@@ -84,7 +99,6 @@ const App = () => {
   const is4K = window.innerWidth >= 2560;
 
   const handleLogin = (credentials) => {
-    // Simple authentication logic (replace with your actual auth logic)
     if (credentials.username === 'admin_beyond' && credentials.password === 'beyondChat') {
       localStorage.setItem('isAuthenticated', 'true');
       localStorage.setItem('sessionStart', new Date().getTime().toString());
@@ -155,7 +169,7 @@ const App = () => {
               <div className="min-h-screen flex flex-col bg-[#eaf6fb]">
                 <Header />
                 
-                <div className="flex-1 flex pt-[66px]">
+                <div className="flex-1 flex pt-[66px] [@media(max-width:425px)]:pb-[60px]">
                   <Sidebar 
                     isOpen={isSidebarOpen} 
                     setIsOpen={setIsSidebarOpen}
@@ -168,9 +182,20 @@ const App = () => {
                       ${isSidebarOpen ? 'w-[306px] [@media(max-width:1024px)]:w-[220px] [@media(max-width:768px)]:w-[216px]' : 'w-0'}
                       flex-shrink-0 bg-white border-r border-gray-200
                       ${isSidebarOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}
+                      [@media(max-width:425px)]:fixed [@media(max-width:425px)]:-ml-8 [@media(max-width:425px)]:left-0 [@media(max-width:425px)]:top-[66px] [@media(max-width:425px)]:bottom-[60px] [@media(max-width:425px)]:w-[50%] [@media(max-width:425px)]:z-[40]
+                      [@media(max-width:425px)]:translate-x-0
+                      ${!isSidebarOpen && '[@media(max-width:425px)]:-translate-x-full'}
                     `}>
-                      <InboxPanel />
+                      <InboxPanel isOpen={isSidebarOpen} />
                     </div>
+
+                    {/* Mobile overlay */}
+                    {isSidebarOpen && (
+                      <div 
+                        className="hidden [@media(max-width:425px)]:block fixed inset-0 bg-black/30 z-[30]"
+                        onClick={() => setIsSidebarOpen(false)}
+                      />
+                    )}
 
                     <div className={`
                       flex flex-1 min-w-0
@@ -270,6 +295,8 @@ const App = () => {
                     </div>
                   </div>
                 </div>
+
+                <BottomNav onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} isSidebarOpen={isSidebarOpen} />
               </div>
             </ProtectedRoute>
           }
