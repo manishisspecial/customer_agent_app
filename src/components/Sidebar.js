@@ -25,7 +25,6 @@ const Sidebar = ({ isOpen, setIsOpen, isMobile }) => {
       transition-all duration-300 z-40
       w-[64px] [@media(min-width:1440px)]:w-[68px]
       [@media(max-width:1024px)]:w-[48px]
-      [@media(max-width:768px)]:w-[36px]
     `}>
       <div className="h-full flex flex-col">
         {/* Top Icons */}
