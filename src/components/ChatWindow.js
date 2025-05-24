@@ -342,7 +342,12 @@ const ChatWindow = ({
     }
   }, [conversation?.id]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = (e) => {
+    // Prevent default form submission
+    if (e) {
+      e.preventDefault();
+    }
+    
     if (!messageInput.trim()) return;
     
     const newMessage = {
@@ -497,7 +502,7 @@ const ChatWindow = ({
 
           {/* Main Input Area */}
           <div className="flex flex-col space-y-1.5">
-            <div className="relative [@media(max-width:1024px)]:mr-6 [@media(max-width:425px)]:mr-0">
+            <form onSubmit={handleSendMessage} className="relative [@media(max-width:1024px)]:mr-6 [@media(max-width:425px)]:mr-0">
               <div className="[@media(max-width:425px)]:flex [@media(max-width:425px)]:items-center [@media(max-width:425px)]:gap-2">
                 <textarea
                   className="w-full px-4 [@media(max-width:425px)]:px-3 py-3 [@media(max-width:425px)]:py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-700 resize-none min-h-[44px] [@media(max-width:425px)]:min-h-[38px]"
@@ -508,7 +513,7 @@ const ChatWindow = ({
                   rows="1"
                 />
                 <button
-                  onClick={handleSendMessage}
+                  type="submit"
                   disabled={!messageInput.trim()}
                   className={`
                     [@media(min-width:426px)]:absolute [@media(min-width:426px)]:right-2 [@media(min-width:426px)]:top-1/2 [@media(min-width:426px)]:-translate-y-1/2
@@ -522,7 +527,7 @@ const ChatWindow = ({
                   <span className="font-medium [@media(max-width:1024px)]:text-xs [@media(max-width:425px)]:hidden">Send</span>
                 </button>
               </div>
-            </div>
+            </form>
 
             {/* Bottom Action Bar - Hide on mobile */}
             <div className="flex items-center justify-between pt-0.5 [@media(max-width:425px)]:hidden">
