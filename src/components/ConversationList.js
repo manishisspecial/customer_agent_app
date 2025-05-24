@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronDown, MoreHorizontal, User, MessageSquare } from "lucide-react";
+import { ChevronDown, MoreHorizontal, User, MessageSquare, Search, Plus } from "lucide-react";
 
 const conversations = [
   {
@@ -86,63 +86,79 @@ const conversations = [
 
 const ConversationList = ({ onSelect, selectedId }) => {
   return (
-    <div className="h-full flex flex-col bg-white [@media(min-width:1440px)]:ml-[-17px]">
-      {/* Header */}
-      <div className="px-3 [@media(max-width:1024px)]:px-2 py-3 border-b border-gray-200">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base [@media(max-width:1024px)]:text-sm font-semibold text-gray-900">Inbox</h2>
-          <button className="flex items-center text-xs [@media(max-width:1024px)]:text-[10px] text-gray-600">
-            <span>{conversations.length} Open</span>
-            <ChevronDown className="w-3.5 h-3.5 [@media(max-width:1024px)]:w-3 [@media(max-width:1024px)]:h-3 ml-1" />
-          </button>
+    <div className="h-full flex flex-col">
+      {/* Search Header */}
+      <div className="p-4 [@media(max-width:425px)]:p-2">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Search conversations, users, or teams..."
+            className="w-full pl-8 pr-3 py-2 [@media(max-width:425px)]:py-1.5 bg-gray-100 rounded-lg text-sm [@media(max-width:425px)]:text-xs"
+          />
+          <Search className="absolute left-2 top-2.5 [@media(max-width:425px)]:top-2 w-4 h-4 text-gray-500" />
         </div>
       </div>
 
-      {/* Conversations */}
+      {/* Inbox Header */}
+      <div className="flex items-center justify-between px-4 [@media(max-width:425px)]:px-2 py-2 border-b border-gray-200">
+        <div className="flex items-center">
+          <h2 className="text-base [@media(max-width:425px)]:text-sm font-semibold">Inbox</h2>
+          <span className="ml-2 text-xs [@media(max-width:425px)]:text-[10px] text-gray-500">8 Open</span>
+        </div>
+        <button className="p-1 hover:bg-gray-100 rounded-lg">
+          <Plus className="w-4 h-4 [@media(max-width:425px)]:w-3.5 [@media(max-width:425px)]:h-3.5" />
+        </button>
+      </div>
+
+      {/* Conversation List */}
       <div className="flex-1 overflow-y-auto">
-        {conversations.length > 0 ? (
-          conversations.map((conversation) => (
-            <button
-              key={conversation.id}
-              onClick={() => onSelect(conversation)}
-              className={`w-full text-left px-3 [@media(max-width:1024px)]:px-2 py-2.5 [@media(max-width:1024px)]:py-2 hover:bg-gray-50 transition-colors border-b border-gray-100
-                ${selectedId === conversation.id ? 'bg-blue-50' : ''}
-              `}
-            >
-              <div className="flex items-start gap-2 [@media(max-width:1024px)]:gap-1.5">
-                <img 
-                  src={conversation.user.avatar} 
-                  alt={conversation.user.name}
-                  className="w-7 h-7 [@media(max-width:1024px)]:w-6 [@media(max-width:1024px)]:h-6 rounded-full" 
-                />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                    <h3 className="text-xs [@media(max-width:1024px)]:text-[11px] font-medium text-gray-900 truncate">
-                      {conversation.user.name}
-                    </h3>
-                    <span className="text-[10px] [@media(max-width:1024px)]:text-[9px] text-gray-500">{conversation.user.time}</span>
-                  </div>
-                  <p className="text-xs [@media(max-width:1024px)]:text-[11px] text-gray-600 truncate">{conversation.user.message}</p>
+        {conversations.map((conversation) => (
+          <button
+            key={conversation.id}
+            onClick={() => onSelect(conversation)}
+            className={`w-full text-left px-4 [@media(max-width:425px)]:px-2 py-3 [@media(max-width:425px)]:py-2 hover:bg-gray-50 border-b border-gray-100 ${
+              selectedId === conversation.id ? 'bg-blue-50' : ''
+            }`}
+          >
+            <div className="flex items-center gap-3 [@media(max-width:425px)]:gap-2">
+              <img
+                src={conversation.user.avatar}
+                alt={conversation.user.name}
+                className="w-10 h-10 [@media(max-width:425px)]:w-8 [@media(max-width:425px)]:h-8 rounded-full"
+              />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-medium text-sm [@media(max-width:425px)]:text-xs text-gray-900 truncate">
+                    {conversation.user.name}
+                  </h3>
+                  <span className="text-xs [@media(max-width:425px)]:text-[10px] text-gray-500">
+                    {conversation.user.time}
+                  </span>
                 </div>
+                <p className="text-sm [@media(max-width:425px)]:text-xs text-gray-500 truncate">
+                  {conversation.user.message}
+                </p>
               </div>
-            </button>
-          ))
-        ) : (
-          <div className="h-full flex flex-col items-center justify-center p-6 [@media(max-width:1024px)]:p-4 text-center">
-            <div className="w-14 h-14 [@media(max-width:1024px)]:w-12 [@media(max-width:1024px)]:h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-              <MessageSquare className="w-7 h-7 [@media(max-width:1024px)]:w-6 [@media(max-width:1024px)]:h-6 text-blue-600" />
             </div>
-            <h3 className="text-base [@media(max-width:1024px)]:text-sm font-semibold text-gray-900 mb-2">
-              No conversations yet
-            </h3>
-            <p className="text-xs [@media(max-width:1024px)]:text-[11px] text-gray-500 mb-4">
-              Start a new conversation or wait for incoming messages
-            </p>
-            <button className="px-3 py-1.5 [@media(max-width:1024px)]:px-2.5 [@media(max-width:1024px)]:py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-xs">
-              Start New Chat
-            </button>
-          </div>
-        )}
+          </button>
+        ))}
+      </div>
+
+      {/* Navigation */}
+      <div className="border-t border-gray-200">
+        <div className="px-4 [@media(max-width:425px)]:px-2 py-2">
+          <h3 className="text-xs [@media(max-width:425px)]:text-[10px] font-medium text-gray-500 uppercase tracking-wider">
+            Teams
+          </h3>
+        </div>
+        <nav className="space-y-1">
+          <button className="w-full text-left px-4 [@media(max-width:425px)]:px-2 py-2 hover:bg-gray-50 text-sm [@media(max-width:425px)]:text-xs text-gray-700">
+            Team inboxes
+          </button>
+          <button className="w-full text-left px-4 [@media(max-width:425px)]:px-2 py-2 hover:bg-gray-50 text-sm [@media(max-width:425px)]:text-xs text-gray-700">
+            Teammates
+          </button>
+        </nav>
       </div>
     </div>
   );

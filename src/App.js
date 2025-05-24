@@ -48,17 +48,30 @@ const ProtectedRoute = ({ children }) => {
 const App = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedConversation, setSelectedConversation] = useState(null);
-  const [rightPanel, setRightPanel] = useState('copilot'); // Changed from 'details' to 'copilot'
-  const [showRightPanel, setShowRightPanel] = useState(true);
+  const [rightPanel, setRightPanel] = useState('copilot');
+  const [showRightPanel, setShowRightPanel] = useState(window.innerWidth > 768);
   const [messageInput, setMessageInput] = useState('');
-  const [currentView, setCurrentView] = useState('list');
+  const [currentView, setCurrentView] = useState(window.innerWidth <= 425 ? 'list' : 'chat');
   const [isAuthenticated, setIsAuthenticated] = useState(
     localStorage.getItem('isAuthenticated') === 'true'
   );
   
-  const isMobile = window.innerWidth < 768;
-  const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
+  const isMobile = window.innerWidth <= 425;
+  const isTablet = window.innerWidth > 425 && window.innerWidth < 768;
   const is4K = window.innerWidth >= 2560;
+
+  // Handle screen size changes
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      if (width <= 425) {
+        setCurrentView('list');
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleLogin = (credentials) => {
     // Simple authentication logic (replace with your actual auth logic)
@@ -73,7 +86,7 @@ const App = () => {
 
   const handleSelectConversation = (conversation) => {
     setSelectedConversation(conversation);
-    if (isMobile || isTablet) {
+    if (isMobile) {
       setCurrentView('chat');
     }
   };
@@ -154,63 +167,43 @@ const App = () => {
                       ${is4K ? 'max-w-[2560px] mx-auto' : ''}
                       ml-[-17px]
                     `}>
-          {(isTablet || isMobile) ? (
-            <>
-                          {currentView === "list" && (
-                            <div className="w-full min-w-[306px]">
+                      {isMobile ? (
+                        <>
+                          {currentView === 'list' && (
+                            <div className="w-full">
                               <ConversationList 
                                 onSelect={handleSelectConversation} 
                                 selectedId={selectedConversation?.id} 
                               />
                             </div>
                           )}
-                          {currentView === "chat" && (
-                            <div className="w-full min-w-[306px]">
+                          {currentView === 'chat' && (
+                            <div className="w-full">
                               <ChatWindow 
                                 conversation={selectedConversation}
                                 onShowDetails={handleShowDetails}
                                 onShowCopilot={handleShowCopilot}
-                                onBack={isMobile ? handleBack : undefined}
+                                onBack={() => setCurrentView('list')}
                                 messageInput={messageInput}
                                 setMessageInput={setMessageInput}
                                 activePanel={showRightPanel ? rightPanel : null}
                               />
-                </div>
-              )}
-                          {showRightPanel && (
-                            <div className="fixed inset-0 z-50 bg-black/30 flex items-end md:items-center justify-center">
-                              <div className="w-full max-w-md bg-white rounded-t-2xl md:rounded-2xl shadow-2xl">
-                                {rightPanel === 'details' ? (
-                                  <ConversationDetails 
-                                    conversation={selectedConversation}
-                                    onClose={handleCloseRightPanel}
-                                    onSwitchPanel={(panel) => setRightPanel(panel)}
-                                  />
-                                ) : (
-                                  <Copilot 
-                                    onClose={handleCloseRightPanel}
-                                    onInsertResponse={handleInsertResponse}
-                                    currentConversation={selectedConversation}
-                                    onSwitchPanel={(panel) => setRightPanel(panel)}
-                                  />
-                                )}
-                  </div>
-                </div>
-              )}
-            </>
-          ) : (
-            <>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <>
                           <div className={`
                             flex-shrink-0 bg-white border-r border-gray-200
-                            w-[306px] ml-8 [@media(max-width:1024px)]:w-[205px]
+                            w-[306px] [@media(max-width:1024px)]:w-[220px] [@media(max-width:768px)]:w-[180px]
                           `}>
                             <ConversationList 
                               onSelect={handleSelectConversation} 
                               selectedId={selectedConversation?.id} 
                             />
-              </div>
+                          </div>
                           
-                          <div className="flex-1 min-w-[306px] bg-white">
+                          <div className="flex-1 min-w-[306px] [@media(max-width:768px)]:min-w-[250px] bg-white">
                             {selectedConversation ? (
                               <ChatWindow 
                                 conversation={selectedConversation}
@@ -236,35 +229,39 @@ const App = () => {
                                 </button>
                               </div>
                             )}
-              </div>
+                          </div>
 
                           {showRightPanel && (
                             <div className={`
-                              bg-white border-l border-gray-200 transition-all duration-300
-                              w-[332px]
+                              ${isTablet ? 'fixed inset-0 z-50 bg-black/30 flex items-center justify-end' : 'relative'}
                             `}>
-                              {rightPanel === 'details' ? (
-                                <ConversationDetails 
-                                  conversation={selectedConversation}
-                                  onClose={handleCloseRightPanel}
-                                  onSwitchPanel={(panel) => setRightPanel(panel)}
-                                />
-                              ) : (
-                                <Copilot 
-                                  onClose={handleCloseRightPanel}
-                                  onInsertResponse={handleInsertResponse}
-                                  currentConversation={selectedConversation}
-                                  onSwitchPanel={(panel) => setRightPanel(panel)}
-                                />
-                              )}
-              </div>
+                              <div className={`
+                                bg-white border-l border-gray-200 h-full
+                                ${isTablet ? 'w-[280px] shadow-xl' : 'w-[332px]'}
+                              `}>
+                                {rightPanel === 'details' ? (
+                                  <ConversationDetails 
+                                    conversation={selectedConversation}
+                                    onClose={isTablet ? handleCloseRightPanel : undefined}
+                                    onSwitchPanel={(panel) => setRightPanel(panel)}
+                                  />
+                                ) : (
+                                  <Copilot 
+                                    onClose={isTablet ? handleCloseRightPanel : undefined}
+                                    onInsertResponse={handleInsertResponse}
+                                    currentConversation={selectedConversation}
+                                    onSwitchPanel={(panel) => setRightPanel(panel)}
+                                  />
+                                )}
+                              </div>
+                            </div>
                           )}
-            </>
-          )}
-        </div>
-      </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
-    </div>
+              </div>
             </ProtectedRoute>
           }
         />

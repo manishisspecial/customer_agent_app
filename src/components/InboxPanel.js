@@ -42,7 +42,7 @@ const InboxPanel = () => {
   ];
 
   return (
-    <div className="w-[220px] [@media(max-width:1024px)]:w-[180px] bg-white border-r border-gray-200 flex flex-col h-full [@media(min-width:1440px)]:ml-[72px] [@media(min-width:1024px)]:ml-[54px]">
+    <div className="w-[220px] [@media(max-width:1024px)]:w-[180px] [@media(max-width:768px)]:w-[164px] bg-white border-r border-gray-200 flex flex-col h-full [@media(min-width:1440px)]:ml-[72px] [@media(min-width:1024px)]:ml-[54px] [@media(max-width:768px)]:ml-[36px] [@media(max-width:425px)]:ml-[0px]">
       {/* Header */}
       <div className="p-2 [@media(max-width:1024px)]:p-1.5 flex items-center justify-between border-b border-gray-200">
         <div className="flex items-center gap-2 [@media(max-width:1024px)]:gap-1.5">
