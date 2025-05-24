@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, Plus, Link as LinkIcon, X, User, Users } from 'lucide-react';
+import { ChevronDown, Plus, Link as LinkIcon, X, User, Users, Link } from 'lucide-react';
 
 const ConversationDetails = ({ conversation, onClose, onSwitchPanel }) => {
   const [expandedSections, setExpandedSections] = useState({
@@ -64,129 +64,149 @@ const ConversationDetails = ({ conversation, onClose, onSwitchPanel }) => {
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
         <div className="flex items-center gap-2">
           <button 
-            className={`text-sm font-medium text-gray-900 border-b-2 border-[#0057FF] py-1`}
+            className={`text-[13px] [@media(max-width:1024px)]:text-xs font-medium text-gray-900 border-b-2 border-[#0057FF] py-1`}
           >
             Details
           </button>
           <div className="h-4 w-[1px] bg-gray-200 mx-2"></div>
           <button 
             onClick={() => onSwitchPanel('copilot')}
-            className="text-sm font-medium text-gray-500 hover:text-gray-900 py-1"
+            className="text-[13px] [@media(max-width:1024px)]:text-xs font-medium text-gray-500 hover:text-gray-900 py-1"
           >
             AI Copilot
           </button>
         </div>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-          <X className="w-5 h-5" strokeWidth={2.5} />
+        <button onClick={onClose} className="text-gray-400 hover:text-gray-500">
+          <X className="h-5 w-5" />
         </button>
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
-        {/* Assignee & Team */}
-        <div className="px-4 py-3 space-y-3 border-b border-gray-100">
+        {/* Assignee */}
+        <div className="px-4 py-3 border-b border-gray-100">
+          <h3 className="text-[13px] [@media(max-width:1024px)]:text-xs font-medium text-gray-500 uppercase mb-2">Assignee</h3>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <User className="w-4 h-4 text-gray-400" strokeWidth={2.5} />
-              <span className="text-xs font-medium text-gray-500">ASSIGNEE</span>
+              <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d" alt="Ellen Edwards" className="w-6 h-6 rounded-full" />
+              <span className="text-[13px] [@media(max-width:1024px)]:text-xs text-gray-900">Ellen Edwards</span>
             </div>
-            <button className="text-xs text-blue-600 hover:text-blue-700">Change</button>
-          </div>
-          <div className="flex items-center gap-2">
-            <img
-              src="https://ui-avatars.com/api/?name=Ellen+Edwards&background=0057FF&color=fff"
-              alt="Ellen Edwards"
-              className="w-6 h-6 rounded-full"
-            />
-            <span className="text-sm text-gray-900">Ellen Edwards</span>
-          </div>
-          <div className="flex items-center justify-between pt-2">
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-gray-400" strokeWidth={2.5} />
-              <span className="text-xs font-medium text-gray-500">TEAM</span>
-            </div>
-            <button className="text-xs text-blue-600 hover:text-blue-700">Change</button>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-white text-xs">
-              D
-            </div>
-            <span className="text-sm text-gray-900">Delivery</span>
+            <button className="text-[13px] [@media(max-width:1024px)]:text-xs text-blue-600 hover:text-blue-700">Change</button>
           </div>
         </div>
 
-        {/* Links Section */}
-        <Section
-          title="LINKS"
-          isExpanded={expandedSections.links}
-          onToggle={() => toggleSection('links')}
-        >
-          <div className="space-y-1">
-            <LinkItem icon={LinkIcon} label="Tracker ticket" />
-            <LinkItem icon={LinkIcon} label="Back-office tickets" />
-            <LinkItem icon={LinkIcon} label="Side conversations" />
+        {/* Team */}
+        <div className="px-4 py-3 border-b border-gray-100">
+          <h3 className="text-[13px] [@media(max-width:1024px)]:text-xs font-medium text-gray-500 uppercase mb-2">Team</h3>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
+                <span className="text-[13px] [@media(max-width:1024px)]:text-xs text-green-700">D</span>
+              </div>
+              <span className="text-[13px] [@media(max-width:1024px)]:text-xs text-gray-900">Delivery</span>
+            </div>
+            <button className="text-[13px] [@media(max-width:1024px)]:text-xs text-blue-600 hover:text-blue-700">Change</button>
           </div>
-        </Section>
+        </div>
+
+        {/* Links */}
+        <div className="px-4 py-3 border-b border-gray-100">
+          <h3 className="text-[13px] [@media(max-width:1024px)]:text-xs font-medium text-gray-500 uppercase mb-2">Links</h3>
+          <div className="space-y-2">
+            <button className="w-full flex items-center justify-between text-[13px] [@media(max-width:1024px)]:text-xs text-gray-900 hover:bg-gray-50 p-2 rounded-lg">
+              <div className="flex items-center gap-2">
+                <Link className="w-4 h-4 text-gray-400" />
+                <span>Tracker ticket</span>
+              </div>
+              <Plus className="w-4 h-4 text-gray-400" />
+            </button>
+            <button className="w-full flex items-center justify-between text-[13px] [@media(max-width:1024px)]:text-xs text-gray-900 hover:bg-gray-50 p-2 rounded-lg">
+              <div className="flex items-center gap-2">
+                <Link className="w-4 h-4 text-gray-400" />
+                <span>Back-office tickets</span>
+              </div>
+              <Plus className="w-4 h-4 text-gray-400" />
+            </button>
+          </div>
+        </div>
 
         {/* Conversation Attributes */}
-        <Section
-          title="CONVERSATION ATTRIBUTES"
-          isExpanded={expandedSections.attributes}
-          onToggle={() => toggleSection('attributes')}
-        >
-          <div className="space-y-1">
-            <AttributeItem label="Subject" addButton />
-            <AttributeItem label="ID" value="#19859" />
-            <AttributeItem label="Priority" value="Medium" />
-            <AttributeItem label="Version" value="V3" />
-            <AttributeItem label="Language" value="English" />
-            <AttributeItem label="Legacy" value="False" />
+        <div className="px-4 py-3 border-b border-gray-100">
+          <h3 className="text-[13px] [@media(max-width:1024px)]:text-xs font-medium text-gray-500 uppercase mb-2">Conversation Attributes</h3>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] [@media(max-width:1024px)]:text-xs text-gray-900">Subject</span>
+              <button className="text-[13px] [@media(max-width:1024px)]:text-xs text-blue-600 hover:text-blue-700">+ Add</button>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] [@media(max-width:1024px)]:text-xs text-gray-900">ID</span>
+              <span className="text-[13px] [@media(max-width:1024px)]:text-xs text-gray-500">#19859</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] [@media(max-width:1024px)]:text-xs text-gray-900">Priority</span>
+              <span className="text-[13px] [@media(max-width:1024px)]:text-xs text-gray-500">Medium</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] [@media(max-width:1024px)]:text-xs text-gray-900">Version</span>
+              <span className="text-[13px] [@media(max-width:1024px)]:text-xs text-gray-500">V3</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] [@media(max-width:1024px)]:text-xs text-gray-900">Language</span>
+              <span className="text-[13px] [@media(max-width:1024px)]:text-xs text-gray-500">English</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] [@media(max-width:1024px)]:text-xs text-gray-900">Legacy</span>
+              <span className="text-[13px] [@media(max-width:1024px)]:text-xs text-gray-500">False</span>
+            </div>
           </div>
-        </Section>
+        </div>
 
         {/* User Data */}
-        <Section
-          title="USER DATA"
-          isExpanded={expandedSections.userData}
-          onToggle={() => toggleSection('userData')}
-        >
-          <div className="space-y-1">
-            <AttributeItem label="Name" value="Alexandra Anholt" />
-            <AttributeItem label="Company" value="-" />
-            <AttributeItem label="Location" value="London" />
-            <AttributeItem label="Email" value="alexandra@n..." />
+        <div className="px-4 py-3 border-b border-gray-100">
+          <h3 className="text-[13px] [@media(max-width:1024px)]:text-xs font-medium text-gray-500 uppercase mb-2">User Data</h3>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] [@media(max-width:1024px)]:text-xs text-gray-900">Name</span>
+              <span className="text-[13px] [@media(max-width:1024px)]:text-xs text-gray-500">Alexandra Anholt</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] [@media(max-width:1024px)]:text-xs text-gray-900">Company</span>
+              <span className="text-[13px] [@media(max-width:1024px)]:text-xs text-gray-500">-</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] [@media(max-width:1024px)]:text-xs text-gray-900">Location</span>
+              <span className="text-[13px] [@media(max-width:1024px)]:text-xs text-gray-500">London</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] [@media(max-width:1024px)]:text-xs text-gray-900">Email</span>
+              <span className="text-[13px] [@media(max-width:1024px)]:text-xs text-gray-500">alexandra@n...</span>
+            </div>
           </div>
-          <button className="mt-3 text-sm text-[#0057FF] hover:underline">
-            See all
-          </button>
-        </Section>
+        </div>
 
         {/* Company Details */}
-        <Section
-          title="COMPANY DETAILS"
-          isExpanded={expandedSections.companyDetails}
-          onToggle={() => toggleSection('companyDetails')}
-        >
-          <div className="text-sm text-gray-500">No company details available</div>
-        </Section>
+        <div className="px-4 py-3 border-b border-gray-100">
+          <h3 className="text-[13px] [@media(max-width:1024px)]:text-xs font-medium text-gray-500 uppercase mb-2">Company Details</h3>
+          <div className="text-[13px] [@media(max-width:1024px)]:text-xs text-gray-500">
+            No company details available
+          </div>
+        </div>
 
         {/* User Media */}
-        <Section
-          title="USER MEDIA"
-          isExpanded={expandedSections.userMedia}
-          onToggle={() => toggleSection('userMedia')}
-        >
-          <div className="text-sm text-gray-500">No media available</div>
-        </Section>
+        <div className="px-4 py-3 border-b border-gray-100">
+          <h3 className="text-[13px] [@media(max-width:1024px)]:text-xs font-medium text-gray-500 uppercase mb-2">User Media</h3>
+          <div className="text-[13px] [@media(max-width:1024px)]:text-xs text-gray-500">
+            No media available
+          </div>
+        </div>
 
         {/* User Tags */}
-        <Section
-          title="USER TAGS"
-          isExpanded={expandedSections.userTags}
-          onToggle={() => toggleSection('userTags')}
-        >
-          <div className="text-sm text-gray-500">No tags available</div>
-        </Section>
+        <div className="px-4 py-3 border-b border-gray-100">
+          <h3 className="text-[13px] [@media(max-width:1024px)]:text-xs font-medium text-gray-500 uppercase mb-2">User Tags</h3>
+          <div className="text-[13px] [@media(max-width:1024px)]:text-xs text-gray-500">
+            No tags available
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -48,7 +48,7 @@ const ProtectedRoute = ({ children }) => {
 const App = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedConversation, setSelectedConversation] = useState(null);
-  const [rightPanel, setRightPanel] = useState('details'); // 'details' or 'copilot'
+  const [rightPanel, setRightPanel] = useState('copilot'); // Changed from 'details' to 'copilot'
   const [showRightPanel, setShowRightPanel] = useState(true);
   const [messageInput, setMessageInput] = useState('');
   const [currentView, setCurrentView] = useState('list');
@@ -79,13 +79,21 @@ const App = () => {
   };
 
   const handleShowDetails = () => {
-    setRightPanel('details');
-    setShowRightPanel(true);
+    if (rightPanel === 'details' && showRightPanel) {
+      setShowRightPanel(false);
+    } else {
+      setRightPanel('details');
+      setShowRightPanel(true);
+    }
   };
 
   const handleShowCopilot = () => {
-    setRightPanel('copilot');
-    setShowRightPanel(true);
+    if (rightPanel === 'copilot' && showRightPanel) {
+      setShowRightPanel(false);
+    } else {
+      setRightPanel('copilot');
+      setShowRightPanel(true);
+    }
   };
 
   const handleCloseRightPanel = () => {
@@ -146,8 +154,8 @@ const App = () => {
                       ${is4K ? 'max-w-[2560px] mx-auto' : ''}
                       ml-[-17px]
                     `}>
-                      {(isTablet || isMobile) ? (
-                        <>
+          {(isTablet || isMobile) ? (
+            <>
                           {currentView === "list" && (
                             <div className="w-full min-w-[306px]">
                               <ConversationList 
@@ -165,9 +173,10 @@ const App = () => {
                                 onBack={isMobile ? handleBack : undefined}
                                 messageInput={messageInput}
                                 setMessageInput={setMessageInput}
+                                activePanel={showRightPanel ? rightPanel : null}
                               />
-                            </div>
-                          )}
+                </div>
+              )}
                           {showRightPanel && (
                             <div className="fixed inset-0 z-50 bg-black/30 flex items-end md:items-center justify-center">
                               <div className="w-full max-w-md bg-white rounded-t-2xl md:rounded-2xl shadow-2xl">
@@ -185,12 +194,12 @@ const App = () => {
                                     onSwitchPanel={(panel) => setRightPanel(panel)}
                                   />
                                 )}
-                              </div>
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <>
                           <div className={`
                             flex-shrink-0 bg-white border-r border-gray-200
                             w-[306px] ml-8 [@media(max-width:1024px)]:w-[205px]
@@ -199,7 +208,7 @@ const App = () => {
                               onSelect={handleSelectConversation} 
                               selectedId={selectedConversation?.id} 
                             />
-                          </div>
+              </div>
                           
                           <div className="flex-1 min-w-[306px] bg-white">
                             {selectedConversation ? (
@@ -209,6 +218,7 @@ const App = () => {
                                 onShowCopilot={handleShowCopilot}
                                 messageInput={messageInput}
                                 setMessageInput={setMessageInput}
+                                activePanel={showRightPanel ? rightPanel : null}
                               />
                             ) : (
                               <div className="h-full flex flex-col items-center justify-center p-8 text-center bg-gray-50">
@@ -226,7 +236,7 @@ const App = () => {
                                 </button>
                               </div>
                             )}
-                          </div>
+              </div>
 
                           {showRightPanel && (
                             <div className={`
@@ -247,14 +257,14 @@ const App = () => {
                                   onSwitchPanel={(panel) => setRightPanel(panel)}
                                 />
                               )}
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
               </div>
+                          )}
+            </>
+          )}
+        </div>
+      </div>
+                </div>
+    </div>
             </ProtectedRoute>
           }
         />
