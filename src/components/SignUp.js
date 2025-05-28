@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageSquare, Lock, User, Eye, EyeOff } from 'lucide-react';
-import { signIn } from '../lib/auth';
+import { signUp } from '../lib/auth';
 
-const Login = () => {
+const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -15,17 +16,22 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
-    
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const { data, error } = await signIn(email, password);
+      const { data, error } = await signUp(email, password);
       if (error) throw error;
       
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('sessionStart', new Date().getTime().toString());
-      navigate('/dashboard');
+      // Supabase sends a confirmation email by default
+      setError('Please check your email for confirmation link');
+      setTimeout(() => navigate('/'), 3000);
     } catch (error) {
-      setError(error.message || 'Invalid email or password');
-      setTimeout(() => setError(''), 3000);
+      setError(error.message || 'Error creating account');
     } finally {
       setIsLoading(false);
     }
@@ -43,13 +49,13 @@ const Login = () => {
         </div>
       </nav>
 
-      {/* Login Form */}
+      {/* Sign Up Form */}
       <div className="flex-1 flex flex-col items-center justify-center px-4">
         <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900">Welcome back</h2>
+            <h2 className="text-3xl font-bold text-gray-900">Create Account</h2>
             <p className="mt-2 text-sm text-gray-600">
-              Please sign in to your account
+              Sign up for a free account
             </p>
           </div>
 
@@ -115,18 +121,43 @@ const Login = () => {
                   </button>
                 </div>
               </div>
+
+              {/* Confirm Password Input */}
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="appearance-none relative block w-full px-3 py-3 pl-10 
+                             border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg
+                             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                             transition-colors duration-200"
+                    placeholder="Confirm your password"
+                  />
+                </div>
+              </div>
             </div>
 
             {error && (
-              <div className="rounded-md bg-red-50 p-4">
+              <div className={`rounded-md ${error.includes('check your email') ? 'bg-green-50' : 'bg-red-50'} p-4`}>
                 <div className="flex">
                   <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <svg className={`h-5 w-5 ${error.includes('check your email') ? 'text-green-400' : 'text-red-400'}`} viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                     </svg>
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm text-red-500">{error}</p>
+                    <p className={`text-sm ${error.includes('check your email') ? 'text-green-500' : 'text-red-500'}`}>{error}</p>
                   </div>
                 </div>
               </div>
@@ -142,7 +173,7 @@ const Login = () => {
                          transition-colors duration-200
                          ${isLoading ? 'opacity-75 cursor-not-allowed' : 'hover:bg-blue-700'}`}
               >
-                {isLoading ? 'Signing in...' : 'Sign in'}
+                {isLoading ? 'Creating account...' : 'Sign up'}
               </button>
             </div>
           </form>
@@ -154,22 +185,16 @@ const Login = () => {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-2 bg-white text-gray-500">
-                  Don't have an account?
+                  Already have an account?
                 </span>
               </div>
             </div>
-            <div className="mt-4 text-center space-y-2">
+            <div className="mt-4 text-center">
               <button
-                onClick={() => navigate('/signup')}
-                className="text-sm text-blue-600 hover:text-blue-500 block w-full"
+                onClick={() => navigate('/')}
+                className="text-sm text-blue-600 hover:text-blue-500"
               >
-                Sign up as User
-              </button>
-              <button
-                onClick={() => navigate('/customer-signup')}
-                className="text-sm text-blue-600 hover:text-blue-500 block w-full"
-              >
-                Sign up as Customer
+                Sign in instead
               </button>
             </div>
           </div>
@@ -179,4 +204,4 @@ const Login = () => {
   );
 };
 
-export default Login; 
+export default SignUp; 

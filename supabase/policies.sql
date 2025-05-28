@@ -1,0 +1,5 @@
+id (uuid) - Primary key, default: uuid_generate_v4()
+created_at (timestamp with time zone) - default: now()
+conversation_id (uuid) - References conversations(id)
+user_id (uuid) - References auth.users(id)
+content (text) 

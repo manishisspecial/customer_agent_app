@@ -1,31 +1,48 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { MessageSquare, Lock, User, Eye, EyeOff } from 'lucide-react';
-import { signIn } from '../lib/auth';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { MessageSquare, Lock, Mail, Eye, EyeOff } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
 
-const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+const CustomerLogin = () => {
+  const location = useLocation();
+  const [formData, setFormData] = useState({
+    email: location.state?.email || '',
+    password: ''
+  });
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState(location.state?.message || '');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { signIn } = useAuth();
+
+  useEffect(() => {
+    // Clear the message after 5 seconds
+    if (message) {
+      const timer = setTimeout(() => setMessage(''), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    setError('');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
     setError('');
-    
+    setIsLoading(true);
+
     try {
-      const { data, error } = await signIn(email, password);
-      if (error) throw error;
-      
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('sessionStart', new Date().getTime().toString());
+      await signIn(formData.email, formData.password, 'customer');
       navigate('/dashboard');
     } catch (error) {
       setError(error.message || 'Invalid email or password');
-      setTimeout(() => setError(''), 3000);
     } finally {
       setIsLoading(false);
     }
@@ -36,45 +53,51 @@ const Login = () => {
       {/* Navbar */}
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center">
+          <Link to="/" className="flex items-center">
             <MessageSquare className="h-8 w-8 text-blue-600" />
             <span className="ml-2 text-xl font-semibold text-gray-900">BeyondChats</span>
-          </div>
+          </Link>
         </div>
       </nav>
 
       {/* Login Form */}
-      <div className="flex-1 flex flex-col items-center justify-center px-4">
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-12">
         <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900">Welcome back</h2>
+            <h2 className="text-3xl font-bold text-gray-900">Welcome Back</h2>
             <p className="mt-2 text-sm text-gray-600">
-              Please sign in to your account
+              Sign in to continue to BeyondChats
             </p>
           </div>
+
+          {message && (
+            <div className="mt-4 p-4 rounded-md bg-blue-50">
+              <p className="text-sm text-blue-700">{message}</p>
+            </div>
+          )}
 
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             <div className="rounded-md shadow-sm space-y-4">
               {/* Email Input */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
+                  Email Address
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="h-5 w-5 text-gray-400" />
+                    <Mail className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
                     id="email"
                     name="email"
                     type="email"
                     required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="appearance-none relative block w-full px-3 py-3 pl-10 
-                             border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg
-                             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                             transition-colors duration-200"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="appearance-none block w-full px-3 py-3 pl-10 
+                             border border-gray-300 rounded-lg
+                             placeholder-gray-400 focus:outline-none focus:ring-blue-500 
+                             focus:border-blue-500 transition-colors"
                     placeholder="Enter your email"
                   />
                 </div>
@@ -94,12 +117,12 @@ const Login = () => {
                     name="password"
                     type={showPassword ? "text" : "password"}
                     required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="appearance-none relative block w-full px-3 py-3 pl-10 pr-10
-                             border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg
-                             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                             transition-colors duration-200"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="appearance-none block w-full px-3 py-3 pl-10 pr-10
+                             border border-gray-300 rounded-lg
+                             placeholder-gray-400 focus:outline-none focus:ring-blue-500 
+                             focus:border-blue-500 transition-colors"
                     placeholder="Enter your password"
                   />
                   <button
@@ -120,11 +143,6 @@ const Login = () => {
             {error && (
               <div className="rounded-md bg-red-50 p-4">
                 <div className="flex">
-                  <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                    </svg>
-                  </div>
                   <div className="ml-3">
                     <p className="text-sm text-red-500">{error}</p>
                   </div>
@@ -136,11 +154,11 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`group relative w-full flex justify-center py-3 px-4 border border-transparent 
-                         text-sm font-medium rounded-lg text-white bg-blue-600 
-                         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
-                         transition-colors duration-200
-                         ${isLoading ? 'opacity-75 cursor-not-allowed' : 'hover:bg-blue-700'}`}
+                className={`w-full flex justify-center py-3 px-4 border border-transparent 
+                         rounded-lg shadow-sm text-sm font-medium text-white 
+                         bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 
+                         focus:ring-offset-2 focus:ring-blue-500 transition-colors
+                         ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
               >
                 {isLoading ? 'Signing in...' : 'Sign in'}
               </button>
@@ -158,19 +176,13 @@ const Login = () => {
                 </span>
               </div>
             </div>
-            <div className="mt-4 text-center space-y-2">
-              <button
-                onClick={() => navigate('/signup')}
-                className="text-sm text-blue-600 hover:text-blue-500 block w-full"
+            <div className="mt-4 text-center">
+              <Link
+                to="/signup"
+                className="text-sm text-blue-600 hover:text-blue-500"
               >
-                Sign up as User
-              </button>
-              <button
-                onClick={() => navigate('/customer-signup')}
-                className="text-sm text-blue-600 hover:text-blue-500 block w-full"
-              >
-                Sign up as Customer
-              </button>
+                Create an account
+              </Link>
             </div>
           </div>
         </div>
@@ -179,4 +191,4 @@ const Login = () => {
   );
 };
 
-export default Login; 
+export default CustomerLogin; 
