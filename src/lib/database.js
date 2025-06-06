@@ -1,14 +1,18 @@
-import { supabase } from './supabase';
+import connectDB from './mongodb';
+import Conversation from '../models/Conversation';
+import Message from '../models/Message';
+import { verifyToken } from './auth';
 
 export const createConversation = async (userId, title) => {
   try {
-    const { data, error } = await supabase
-      .from('conversations')
-      .insert([{ user_id: userId, title }])
-      .select()
-      .single();
+    await connectDB();
     
-    if (error) throw error;
+    const conversation = new Conversation({
+      user_id: userId,
+      title
+    });
+
+    const data = await conversation.save();
     return { data, error: null };
   } catch (error) {
     return { data: null, error };
@@ -17,13 +21,11 @@ export const createConversation = async (userId, title) => {
 
 export const getConversations = async (userId) => {
   try {
-    const { data, error } = await supabase
-      .from('conversations')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+    await connectDB();
     
-    if (error) throw error;
+    const data = await Conversation.find({ user_id: userId })
+      .sort({ created_at: -1 });
+    
     return { data, error: null };
   } catch (error) {
     return { data: null, error };
@@ -32,17 +34,21 @@ export const getConversations = async (userId) => {
 
 export const createMessage = async (conversationId, userId, content) => {
   try {
-    const { data, error } = await supabase
-      .from('messages')
-      .insert([{
-        conversation_id: conversationId,
-        user_id: userId,
-        content
-      }])
-      .select()
-      .single();
+    await connectDB();
     
-    if (error) throw error;
+    const message = new Message({
+      conversation_id: conversationId,
+      user_id: userId,
+      content
+    });
+
+    const data = await message.save();
+    
+    // Update conversation's updated_at
+    await Conversation.findByIdAndUpdate(conversationId, {
+      updated_at: new Date()
+    });
+
     return { data, error: null };
   } catch (error) {
     return { data: null, error };
@@ -51,13 +57,11 @@ export const createMessage = async (conversationId, userId, content) => {
 
 export const getMessages = async (conversationId) => {
   try {
-    const { data, error } = await supabase
-      .from('messages')
-      .select('*')
-      .eq('conversation_id', conversationId)
-      .order('created_at', { ascending: true });
+    await connectDB();
     
-    if (error) throw error;
+    const data = await Message.find({ conversation_id: conversationId })
+      .sort({ created_at: 1 });
+    
     return { data, error: null };
   } catch (error) {
     return { data: null, error };
@@ -66,14 +70,26 @@ export const getMessages = async (conversationId) => {
 
 export const deleteConversation = async (conversationId) => {
   try {
-    const { error } = await supabase
-      .from('conversations')
-      .delete()
-      .eq('id', conversationId);
+    await connectDB();
     
-    if (error) throw error;
+    // Delete all messages in the conversation
+    await Message.deleteMany({ conversation_id: conversationId });
+    
+    // Delete the conversation
+    await Conversation.findByIdAndDelete(conversationId);
+    
     return { error: null };
   } catch (error) {
     return { error };
+  }
+};
+
+export const verifyDatabaseConnection = async () => {
+  try {
+    await connectDB();
+    return true;
+  } catch (error) {
+    console.error('Database connection error:', error);
+    return false;
   }
 }; 

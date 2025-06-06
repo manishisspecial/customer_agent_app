@@ -4,8 +4,12 @@
   "private": true,
   "dependencies": {
     "@supabase/supabase-js": "^2.49.8",
+    "bcryptjs": "^3.0.2",
     "cra-template-pwa": "2.0.0",
+    "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.511.0",
+    "mongodb": "^6.17.0",
+    "mongoose": "^8.15.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.0",
