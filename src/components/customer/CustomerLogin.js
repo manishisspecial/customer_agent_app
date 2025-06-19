@@ -39,7 +39,7 @@ const CustomerLogin = () => {
     setIsLoading(true);
 
     try {
-      await signIn(formData.email, formData.password, 'customer');
+      await signIn(formData.email, formData.password);
       navigate('/dashboard');
     } catch (error) {
       setError(error.message || 'Invalid email or password');

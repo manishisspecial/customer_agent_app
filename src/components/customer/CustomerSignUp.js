@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { MessageSquare, Lock, Mail, User, Phone, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import { checkUserExists } from '../../lib/supabase';
 
 const CustomerSignUp = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +13,7 @@ const CustomerSignUp = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { signUp } = useAuth();
@@ -24,51 +24,62 @@ const CustomerSignUp = () => {
       ...prev,
       [name]: value
     }));
-    setError(''); // Clear error when user types
+    // Clear errors when user starts typing
+    setError('');
+  };
+
+  const validateForm = () => {
+    if (!formData.name.trim()) {
+      setError('Name is required');
+      return false;
+    }
+    if (!formData.email.trim()) {
+      setError('Email is required');
+      return false;
+    }
+    if (!formData.phone.trim()) {
+      setError('Phone number is required');
+      return false;
+    }
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return false;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
+    
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      // Validation
-      if (formData.password !== formData.confirmPassword) {
-        throw new Error('Passwords do not match');
-      }
-
-      if (formData.password.length < 6) {
-        throw new Error('Password must be at least 6 characters long');
-      }
-
-      // Attempt signup with customer role
-      const result = await signUp(formData.email, formData.password, {
+      const result = await signUp({
+        email: formData.email,
+        password: formData.password,
         role: 'customer',
-        customer_name: formData.name,
-        customer_mobile_number: formData.phone,
-        customer_email: formData.email
+        firstName: formData.name,
+        lastName: '',
+        phone: formData.phone
       });
 
-      if (result) {
-        navigate('/dashboard');
-      }
+      setSuccess(result.message);
+      // Don't navigate immediately, let user see the confirmation message
+      setTimeout(() => {
+        navigate('/login');
+      }, 5000);
     } catch (error) {
-      console.error('Signup error:', error);
-      if (error.message.includes('already registered')) {
-        setError('Email already registered. Please sign in instead.');
-        // Add a slight delay before redirecting to login
-        setTimeout(() => {
-          navigate('/login', { 
-            state: { 
-              email: formData.email,
-              message: 'Please sign in with your existing account.'
-            }
-          });
-        }, 2000);
-      } else {
-        setError(error.message || 'Failed to create account. Please try again.');
-      }
+      setError(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -92,17 +103,14 @@ const CustomerSignUp = () => {
           <div className="text-center">
             <h2 className="text-3xl font-bold text-gray-900">Create Account</h2>
             <p className="mt-2 text-sm text-gray-600">
-              Join BeyondChats to get instant support
+              Join BeyondChats to get support
             </p>
           </div>
 
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="mt-8 space-y-6">
             <div className="rounded-md shadow-sm space-y-4">
-              {/* Name Input */}
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Full Name
-                </label>
+                <label htmlFor="name" className="sr-only">Full Name</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <User className="h-5 w-5 text-gray-400" />
@@ -114,20 +122,17 @@ const CustomerSignUp = () => {
                     required
                     value={formData.name}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-3 pl-10 
-                             border border-gray-300 rounded-lg
-                             placeholder-gray-400 focus:outline-none focus:ring-blue-500 
-                             focus:border-blue-500 transition-colors"
-                    placeholder="Enter your full name"
+                    className="appearance-none relative block w-full px-3 py-2 pl-10 
+                             border border-gray-300 placeholder-gray-500 text-gray-900 
+                             rounded-lg focus:outline-none focus:ring-blue-500 
+                             focus:border-blue-500 focus:z-10 sm:text-sm"
+                    placeholder="Full Name"
                   />
                 </div>
               </div>
 
-              {/* Email Input */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address
-                </label>
+                <label htmlFor="email" className="sr-only">Email address</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Mail className="h-5 w-5 text-gray-400" />
@@ -136,23 +141,21 @@ const CustomerSignUp = () => {
                     id="email"
                     name="email"
                     type="email"
+                    autoComplete="email"
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-3 pl-10 
-                             border border-gray-300 rounded-lg
-                             placeholder-gray-400 focus:outline-none focus:ring-blue-500 
-                             focus:border-blue-500 transition-colors"
-                    placeholder="Enter your email"
+                    className="appearance-none relative block w-full px-3 py-2 pl-10 
+                             border border-gray-300 placeholder-gray-500 text-gray-900 
+                             rounded-lg focus:outline-none focus:ring-blue-500 
+                             focus:border-blue-500 focus:z-10 sm:text-sm"
+                    placeholder="Email address"
                   />
                 </div>
               </div>
 
-              {/* Phone Input */}
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone Number
-                </label>
+                <label htmlFor="phone" className="sr-only">Phone Number</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Phone className="h-5 w-5 text-gray-400" />
@@ -164,20 +167,17 @@ const CustomerSignUp = () => {
                     required
                     value={formData.phone}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-3 pl-10 
-                             border border-gray-300 rounded-lg
-                             placeholder-gray-400 focus:outline-none focus:ring-blue-500 
-                             focus:border-blue-500 transition-colors"
-                    placeholder="Enter your phone number"
+                    className="appearance-none relative block w-full px-3 py-2 pl-10 
+                             border border-gray-300 placeholder-gray-500 text-gray-900 
+                             rounded-lg focus:outline-none focus:ring-blue-500 
+                             focus:border-blue-500 focus:z-10 sm:text-sm"
+                    placeholder="Phone Number"
                   />
                 </div>
               </div>
 
-              {/* Password Input */}
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                  Password
-                </label>
+                <label htmlFor="password" className="sr-only">Password</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Lock className="h-5 w-5 text-gray-400" />
@@ -186,14 +186,15 @@ const CustomerSignUp = () => {
                     id="password"
                     name="password"
                     type={showPassword ? "text" : "password"}
+                    autoComplete="new-password"
                     required
                     value={formData.password}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-3 pl-10 pr-10
-                             border border-gray-300 rounded-lg
-                             placeholder-gray-400 focus:outline-none focus:ring-blue-500 
-                             focus:border-blue-500 transition-colors"
-                    placeholder="Create a password"
+                    className="appearance-none relative block w-full px-3 py-2 pl-10 
+                             border border-gray-300 placeholder-gray-500 text-gray-900 
+                             rounded-lg focus:outline-none focus:ring-blue-500 
+                             focus:border-blue-500 focus:z-10 sm:text-sm"
+                    placeholder="Password"
                   />
                   <button
                     type="button"
@@ -201,19 +202,16 @@ const CustomerSignUp = () => {
                     className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                      <EyeOff className="h-5 w-5 text-gray-400" />
                     ) : (
-                      <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                      <Eye className="h-5 w-5 text-gray-400" />
                     )}
                   </button>
                 </div>
               </div>
 
-              {/* Confirm Password Input */}
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                  Confirm Password
-                </label>
+                <label htmlFor="confirmPassword" className="sr-only">Confirm Password</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Lock className="h-5 w-5 text-gray-400" />
@@ -222,14 +220,15 @@ const CustomerSignUp = () => {
                     id="confirmPassword"
                     name="confirmPassword"
                     type={showPassword ? "text" : "password"}
+                    autoComplete="new-password"
                     required
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="appearance-none block w-full px-3 py-3 pl-10 
-                             border border-gray-300 rounded-lg
-                             placeholder-gray-400 focus:outline-none focus:ring-blue-500 
-                             focus:border-blue-500 transition-colors"
-                    placeholder="Confirm your password"
+                    className="appearance-none relative block w-full px-3 py-2 pl-10 
+                             border border-gray-300 placeholder-gray-500 text-gray-900 
+                             rounded-lg focus:outline-none focus:ring-blue-500 
+                             focus:border-blue-500 focus:z-10 sm:text-sm"
+                    placeholder="Confirm Password"
                   />
                 </div>
               </div>
@@ -240,6 +239,16 @@ const CustomerSignUp = () => {
                 <div className="flex">
                   <div className="ml-3">
                     <p className="text-sm text-red-500">{error}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {success && (
+              <div className="rounded-md bg-green-50 p-4">
+                <div className="flex">
+                  <div className="ml-3">
+                    <p className="text-sm text-green-500">{success}</p>
                   </div>
                 </div>
               </div>

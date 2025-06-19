@@ -28,8 +28,12 @@ const AgentLogin = () => {
     setIsLoading(true);
 
     try {
-      await signIn(formData.email, formData.password, 'agent');
-      navigate('/customer-service-agent/dashboard');
+      const data = await signIn(formData.email, formData.password);
+      if (data.user?.role === 'agent') {
+        navigate('/customer-service-agent/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error) {
       setError(error.message);
     } finally {

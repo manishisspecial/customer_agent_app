@@ -27,7 +27,6 @@ const SignUp = () => {
       const { data, error } = await signUp(email, password);
       if (error) throw error;
       
-      // Supabase sends a confirmation email by default
       setError('Please check your email for confirmation link');
       setTimeout(() => navigate('/'), 3000);
     } catch (error) {

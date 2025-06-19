@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { supabase, createUser, createProfile } from '../lib/supabase';
 
 const AuthContext = createContext({});
 
@@ -9,147 +8,91 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    checkSession();
+    checkUser();
+  }, []);
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session) {
-        setUser(session.user);
-        setUserRole(session.user.user_metadata.role);
+  const checkUser = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+      // Call backend to get current user
+      const res = await fetch('/api/auth/me', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data && data.user) {
+        setUser(data.user);
+        setUserRole(data.user.role);
       } else {
         setUser(null);
         setUserRole(null);
-      }
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const checkSession = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setUser(session.user);
-        setUserRole(session.user.user_metadata.role);
+        localStorage.removeItem('token');
       }
     } catch (error) {
-      console.error('Session check error:', error);
+      setUser(null);
+      setUserRole(null);
+      localStorage.removeItem('token');
     } finally {
       setLoading(false);
     }
   };
 
-  const signUp = async (email, password, additionalData) => {
+  const signUp = async (formData) => {
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
+    let data;
     try {
-      const { role } = additionalData;
-      const table = role === 'agent' ? 'agents' : 'customers';
-
-      // Step 1: Create auth user directly
-      const user = await createUser(email, password, role);
-      
-      if (!user?.id) {
-        throw new Error('Failed to create user account');
-      }
-
-      // Step 2: Check if profile already exists
-      const { data: existingProfile } = await supabase
-        .from(table)
-        .select('*')
-        .eq('email', email)
-        .single();
-
-      if (existingProfile) {
-        // Profile exists, just update it
-        const { error: updateError } = await supabase
-          .from(table)
-          .update({
-            updated_at: new Date().toISOString(),
-            ...(role === 'agent' ? {
-              agent_name: additionalData.agent_name,
-              agent_mobile_number: additionalData.agent_mobile_number,
-              department: additionalData.department
-            } : {
-              customer_name: additionalData.customer_name,
-              customer_mobile_number: additionalData.customer_mobile_number
-            })
-          })
-          .eq('email', email);
-
-        if (updateError) throw updateError;
-      } else {
-        // Create new profile
-        const profileData = {
-          user_id: user.id,
-          email,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          ...(role === 'agent' ? {
-            agent_name: additionalData.agent_name,
-            agent_mobile_number: additionalData.agent_mobile_number,
-            department: additionalData.department
-          } : {
-            customer_name: additionalData.customer_name,
-            customer_mobile_number: additionalData.customer_mobile_number
-          })
-        };
-
-        await createProfile(table, profileData);
-      }
-
-      // Step 3: Set local state
-      setUser(user);
-      setUserRole(role);
-      
-      return user;
-    } catch (error) {
-      console.error('Signup error:', error);
-      // Clean up if profile creation failed
-      if (error.message.includes('profile')) {
-        await supabase.auth.signOut();
-      }
-      throw error;
+      data = await res.json();
+    } catch (e) {
+      data = { error: 'Invalid server response' };
     }
-  };
-
-  const signIn = async (email, password, role) => {
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (error) throw error;
-      if (!data.user) throw new Error('Login failed - no user returned');
-
+    if (data.token) {
+      localStorage.setItem('token', data.token);
       setUser(data.user);
-      setUserRole(role);
-      return data.user;
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
+      setUserRole(data.user?.role);
     }
+    return data;
   };
 
-  const signOut = async () => {
+  const signIn = async (email, password) => {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    let data;
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      setUser(null);
-      setUserRole(null);
-    } catch (error) {
-      console.error('Signout error:', error);
-      throw error;
+      data = await res.json();
+    } catch (e) {
+      data = { error: 'Invalid server response' };
     }
+    if (data.token) {
+      localStorage.setItem('token', data.token);
+      setUser(data.user);
+      setUserRole(data.user?.role);
+    }
+    return data;
+  };
+
+  const signOut = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+    setUserRole(null);
   };
 
   const resetPassword = async (email) => {
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
-      if (error) throw error;
-    } catch (error) {
-      console.error('Password reset error:', error);
-      throw error;
-    }
+    const res = await fetch('/api/auth/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    return await res.json();
   };
 
   return (
@@ -169,7 +112,7 @@ export const AuthProvider = ({ children }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;

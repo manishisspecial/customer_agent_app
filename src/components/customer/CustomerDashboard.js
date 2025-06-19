@@ -8,7 +8,6 @@ import ConversationDetails from "../ConversationDetails";
 import BottomNav from "../BottomNav";
 import { MessageSquare, Plus } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
-import { supabase } from "../../lib/supabase";
 
 const CustomerDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -19,6 +18,9 @@ const CustomerDashboard = () => {
   const [isCreatingNewChat, setIsCreatingNewChat] = useState(false);
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const [conversations, setConversations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Handle screen size changes
   useEffect(() => {
@@ -37,6 +39,33 @@ const CustomerDashboard = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    fetchConversations();
+  }, []);
+
+  const fetchConversations = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/conversations', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch conversations');
+      }
+
+      const data = await response.json();
+      setConversations(data.conversations);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+      setError(error.message);
+      setLoading(false);
+    }
+  };
+
   const handleSelectConversation = (conversation) => {
     setSelectedConversation(conversation);
     if (window.innerWidth <= 768) {
@@ -51,37 +80,54 @@ const CustomerDashboard = () => {
   const handleNewChat = async () => {
     setIsCreatingNewChat(true);
     try {
-      // Create a new conversation in the database
-      const { data: conversation, error } = await supabase
-        .from('conversations')
-        .insert([
-          {
-            customer_id: user.id,
-            status: 'pending',
-            created_at: new Date().toISOString(),
-          }
-        ])
-        .select()
-        .single();
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/conversations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          customerId: user.id,
+          status: 'pending'
+        })
+      });
 
-      if (error) throw error;
-
-      // Select the new conversation
-      setSelectedConversation(conversation);
-      if (window.innerWidth <= 768) {
-        setCurrentView('chat');
+      if (!response.ok) {
+        throw new Error('Failed to create conversation');
       }
+
+      const data = await response.json();
+      navigate(`/conversation/${data.conversation._id}`);
     } catch (error) {
-      console.error('Error creating new chat:', error);
-      // Handle error (show notification, etc.)
+      console.error('Error starting conversation:', error);
+      setError(error.message);
     } finally {
       setIsCreatingNewChat(false);
     }
   };
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+      setError(error.message);
+    }
+  };
+
+  if (loading) {
+    return <div className="text-center p-4">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500 text-center p-4">{error}</div>;
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-[#eaf6fb]">
-      <Header onSignOut={signOut} userEmail={user?.email} isCustomer={true} />
+      <Header onSignOut={handleSignOut} userEmail={user?.email} isCustomer={true} />
       
       <div className="flex-1 flex pt-[66px] [@media(max-width:425px)]:pb-[60px]">
         <Sidebar 

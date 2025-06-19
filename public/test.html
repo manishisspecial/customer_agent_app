@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
+        .container { margin-bottom: 20px; padding: 20px; border: 1px solid #ccc; border-radius: 5px; }
+        button { padding: 10px 20px; margin: 10px 0; cursor: pointer; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 5px; overflow-x: auto; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>API Test Page</h1>
+    
+    <div class="container">
+        <h2>Register User</h2>
+        <button onclick="register('customer')">Register Test Customer</button>
+        <button onclick="register('agent')">Register Test Agent</button>
+        <pre id="registerResult">Results will appear here...</pre>
+    </div>
+
+    <div class="container">
+        <h2>Login User</h2>
+        <button onclick="login()">Login Test User</button>
+        <pre id="loginResult">Results will appear here...</pre>
+    </div>
+
+    <div class="container">
+        <h2>View Data</h2>
+        <button onclick="viewUsers()">View All Users</button>
+        <button onclick="viewCustomers()">View Customers</button>
+        <button onclick="viewAgents()">View Agents</button>
+        <pre id="viewResult">Results will appear here...</pre>
+    </div>
+
+    <script>
+        function generateTestUser(role) {
+            const timestamp = new Date().getTime();
+            return {
+                username: `test_${role}_${timestamp}`,
+                email: `test_${role}_${timestamp}@example.com`,
+                password: "Test123!@#",
+                role: role,
+                firstName: "Test",
+                lastName: "User",
+                phoneNumber: "1234567890"
+            };
+        }
+
+        async function register(role) {
+            const registerResult = document.getElementById('registerResult');
+            try {
+                const userData = generateTestUser(role);
+                const response = await fetch('http://localhost:5001/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                });
+                const data = await response.json();
+                registerResult.textContent = JSON.stringify(data, null, 2);
+                registerResult.className = response.ok ? 'success' : 'error';
+            } catch (error) {
+                registerResult.textContent = 'Error: ' + error.message;
+                registerResult.className = 'error';
+            }
+        }
+
+        async function login() {
+            const loginResult = document.getElementById('loginResult');
+            try {
+                const response = await fetch('http://localhost:5001/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: "test@example.com",
+                        password: "Test123!@#"
+                    })
+                });
+                const data = await response.json();
+                loginResult.textContent = JSON.stringify(data, null, 2);
+                loginResult.className = response.ok ? 'success' : 'error';
+            } catch (error) {
+                loginResult.textContent = 'Error: ' + error.message;
+                loginResult.className = 'error';
+            }
+        }
+
+        async function viewUsers() {
+            await fetchData('/api/admin/users');
+        }
+
+        async function viewCustomers() {
+            await fetchData('/api/admin/customers');
+        }
+
+        async function viewAgents() {
+            await fetchData('/api/admin/agents');
+        }
+
+        async function fetchData(endpoint) {
+            const viewResult = document.getElementById('viewResult');
+            try {
+                const response = await fetch(`http://localhost:5001${endpoint}`);
+                const data = await response.json();
+                viewResult.textContent = JSON.stringify(data, null, 2);
+                viewResult.className = response.ok ? 'success' : 'error';
+            } catch (error) {
+                viewResult.textContent = 'Error: ' + error.message;
+                viewResult.className = 'error';
+            }
+        }
+    </script>
+</body>
+</html> 

@@ -1,26 +1,45 @@
 {
-  "name": "beyond-chat",
+  "name": "customer-agent-app",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@supabase/supabase-js": "^2.49.8",
-    "bcryptjs": "^3.0.2",
-    "cra-template-pwa": "2.0.0",
+    "@supabase/supabase-js": "^2.50.0",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "assert": "^2.1.0",
+    "bcryptjs": "^2.4.3",
+    "browserify-zlib": "^0.2.0",
+    "buffer": "^6.0.3",
+    "concurrently": "^8.2.2",
+    "cors": "^2.8.5",
+    "crypto-browserify": "^3.12.0",
+    "dotenv": "^16.5.0",
+    "express": "^4.21.2",
+    "https-browserify": "^1.0.0",
     "jsonwebtoken": "^9.0.2",
-    "lucide-react": "^0.511.0",
+    "lucide-react": "^0.294.0",
     "mongodb": "^6.17.0",
-    "mongoose": "^8.15.1",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "react-router-dom": "^7.6.0",
+    "mongoose": "^8.16.0",
+    "os-browserify": "^0.3.0",
+    "path-browserify": "^1.0.1",
+    "process": "^0.11.10",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.21.1",
     "react-scripts": "5.0.1",
-    "web-vitals": "^5.0.1"
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
+    "url": "^0.11.3",
+    "util": "^0.12.5",
+    "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "dev": "npm start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "react-app-rewired start",
+    "server": "nodemon server.js",
+    "dev": "concurrently \"npm run server\" \"npm start\"",
+    "build": "set \"GENERATE_SOURCEMAP=false\" && react-app-rewired build",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -42,8 +61,8 @@
     ]
   },
   "devDependencies": {
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.3",
-    "tailwindcss": "^3.4.4"
-  }
+    "nodemon": "^3.0.2",
+    "react-app-rewired": "^2.2.1"
+  },
+  "proxy": "http://localhost:5001"
 }

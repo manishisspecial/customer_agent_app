@@ -17,12 +17,12 @@ const Login = () => {
     setError('');
     
     try {
-      const { data, error } = await signIn(email, password);
-      if (error) throw error;
-      
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('sessionStart', new Date().getTime().toString());
-      navigate('/dashboard');
+      const data = await signIn(email, password);
+      if (data.user?.role === 'agent') {
+        navigate('/customer-service-agent/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error) {
       setError(error.message || 'Invalid email or password');
       setTimeout(() => setError(''), 3000);

@@ -14,6 +14,7 @@ const AgentSignUp = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { signUp } = useAuth();
@@ -24,36 +25,65 @@ const AgentSignUp = () => {
       ...prev,
       [name]: value
     }));
+    // Clear errors when user starts typing
+    setError('');
+  };
+
+  const validateForm = () => {
+    if (!formData.name.trim()) {
+      setError('Name is required');
+      return false;
+    }
+    if (!formData.email.trim()) {
+      setError('Email is required');
+      return false;
+    }
+    if (!formData.phone.trim()) {
+      setError('Phone number is required');
+      return false;
+    }
+    if (!formData.department) {
+      setError('Department is required');
+      return false;
+    }
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return false;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
+    
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
 
-    // Validation
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      setIsLoading(false);
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
-      setIsLoading(false);
-      return;
-    }
-
     try {
-      await signUp(formData.email, formData.password, {
+      const result = await signUp({
+        email: formData.email,
+        password: formData.password,
         role: 'agent',
-        agent_name: formData.name,
-        agent_mobile_number: formData.phone,
-        agent_email: formData.email,
-        department: formData.department
+        firstName: formData.name,
+        lastName: '',
+        phone: formData.phone,
+        company: formData.department
       });
 
-      navigate('/customer-service-agent/dashboard');
+      setSuccess(result.message);
+      // Don't navigate immediately, let user see the confirmation message
+      setTimeout(() => {
+        navigate('/customer-service-agent/login');
+      }, 5000);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -83,7 +113,7 @@ const AgentSignUp = () => {
             </p>
           </div>
 
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="mt-8 space-y-6">
             <div className="rounded-md shadow-sm space-y-4">
               {/* Name Input */}
               <div>
@@ -256,6 +286,16 @@ const AgentSignUp = () => {
                 <div className="flex">
                   <div className="ml-3">
                     <p className="text-sm text-red-500">{error}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {success && (
+              <div className="rounded-md bg-green-50 p-4">
+                <div className="flex">
+                  <div className="ml-3">
+                    <p className="text-sm text-green-500">{success}</p>
                   </div>
                 </div>
               </div>
